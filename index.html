@@ -182,6 +182,29 @@
   .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
   .tag{font-size:12.5px;background:var(--bg-soft);border:1px solid var(--line);color:var(--muted);padding:4px 11px;border-radius:6px}
 
+  /* ---------- 作品展示 ---------- */
+  .works-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px}
+  .work-card{
+    position:relative;border-radius:16px;overflow:hidden;cursor:zoom-in;
+    border:1px solid var(--line);background:var(--card);
+    box-shadow:0 12px 30px rgba(0,0,0,.35);
+    transition:transform .25s ease,border-color .25s ease;
+  }
+  .work-card:hover{transform:translateY(-6px);border-color:var(--accent)}
+  .work-card .pic{width:100%;height:300px;object-fit:cover;display:block;background:#0c1322}
+  .work-card .cap{
+    position:absolute;left:0;right:0;bottom:0;padding:32px 18px 16px;
+    background:linear-gradient(180deg,transparent,rgba(8,12,22,.92));
+    color:#fff;font-size:14.5px;font-weight:600;line-height:1.45;
+  }
+  .work-card .zoom{
+    position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:9px;
+    display:flex;align-items:center;justify-content:center;font-size:16px;
+    background:rgba(8,12,22,.55);border:1px solid rgba(255,255,255,.25);color:#fff;
+    opacity:0;transition:opacity .2s;
+  }
+  .work-card:hover .zoom{opacity:1}
+
   /* ---------- 荣誉 · 证书跑马灯 ---------- */
   .marquee{
     position:relative;width:100%;overflow:hidden;
@@ -273,6 +296,7 @@
       <a href="#skills">技能</a>
       <a href="#experience">实习</a>
       <a href="#projects">项目</a>
+      <a href="#works">作品</a>
       <a href="#awards">荣誉</a>
       <a href="#contact">联系</a>
     </div>
@@ -445,7 +469,29 @@
   </div>
 </section>
 
-<section id="awards">
+<section id="works">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">Works</div>
+      <h2>作品展示</h2>
+    </div>
+    <div class="works-grid reveal" id="worksGrid">
+      <figure class="work-card" data-idx="0">
+        <img class="pic" src="assets/works/work1_drone.jpg" alt="ROS 自主无人机" loading="lazy">
+        <div class="zoom">🔍</div>
+        <figcaption class="cap">🛸 ROS 自主无人机<br>NUC + RealSense D435i · Ego-Planner 自主导航与避障</figcaption>
+      </figure>
+      <figure class="work-card" data-idx="1">
+        <img class="pic" src="assets/works/work2_sorting.jpg" alt="履带式分拣机器人" loading="lazy">
+        <div class="zoom">🔍</div>
+        <figcaption class="cap">🦾 履带式分拣机器人<br>机械臂抓取 + 激光雷达 + 三色分类回收</figcaption>
+      </figure>
+    </div>
+    <p class="marquee-hint">🖱️ 点击作品可放大查看实物图</p>
+  </div>
+</section>
+
+<section id="awards" style="background:var(--bg-soft)">
   <div class="wrap">
     <div class="sec-head reveal">
       <div class="eyebrow">Honors</div>
@@ -458,7 +504,7 @@
   </div>
 </section>
 
-<section id="contact" style="background:var(--bg-soft)">
+<section id="contact">
   <div class="wrap contact">
     <div class="sec-head reveal" style="text-align:center">
       <div class="eyebrow">Contact</div>
@@ -592,30 +638,43 @@
   // 渲染两份以实现无缝循环(第二份对灯箱隐藏点击索引复用)
   track.innerHTML = CERTS.map(cardHTML).join('') + CERTS.map(cardHTML).join('');
 
+  // ---------- 作品数据 ----------
+  const WORKS=[
+    {img:"assets/works/work1_drone.jpg",   medal:"🛸", name:"ROS 自主无人机 · NUC + RealSense D435i,Ego-Planner 自主导航与避障"},
+    {img:"assets/works/work2_sorting.jpg", medal:"🦾", name:"履带式分拣机器人 · 机械臂抓取 + 激光雷达 + 三色分类回收"},
+  ];
+
   // ---------- 灯箱 ----------
   const lb=document.getElementById('lightbox'),
         lbImg=document.getElementById('lbImg'),
         lbCap=document.getElementById('lbCap');
-  let cur=0;
-  function show(i){
-    cur=(i+CERTS.length)%CERTS.length;
-    const c=CERTS[cur];
-    lbImg.src=c.img; lbCap.textContent=`${c.medal} ${c.name} · ${c.tag}`;
+  let cur=0, GAL=CERTS;
+  function show(list,i){
+    GAL=list; cur=(i+list.length)%list.length;
+    const c=list[cur];
+    lbImg.src=c.img;
+    lbCap.textContent = c.tag ? `${c.medal} ${c.name} · ${c.tag}` : `${c.medal||''} ${c.name}`;
     lb.classList.add('open');
   }
   track.addEventListener('click',e=>{
     const card=e.target.closest('.cert');
-    if(card) show(+card.dataset.idx);
+    if(card) show(CERTS,+card.dataset.idx);
+  });
+  // 作品点击放大
+  const worksGrid=document.getElementById('worksGrid');
+  if(worksGrid) worksGrid.addEventListener('click',e=>{
+    const card=e.target.closest('.work-card');
+    if(card) show(WORKS,+card.dataset.idx);
   });
   document.getElementById('lbClose').onclick=()=>lb.classList.remove('open');
-  document.getElementById('lbPrev').onclick=e=>{e.stopPropagation();show(cur-1);};
-  document.getElementById('lbNext').onclick=e=>{e.stopPropagation();show(cur+1);};
+  document.getElementById('lbPrev').onclick=e=>{e.stopPropagation();show(GAL,cur-1);};
+  document.getElementById('lbNext').onclick=e=>{e.stopPropagation();show(GAL,cur+1);};
   lb.addEventListener('click',e=>{if(e.target===lb)lb.classList.remove('open');});
   document.addEventListener('keydown',e=>{
     if(!lb.classList.contains('open'))return;
     if(e.key==='Escape')lb.classList.remove('open');
-    if(e.key==='ArrowLeft')show(cur-1);
-    if(e.key==='ArrowRight')show(cur+1);
+    if(e.key==='ArrowLeft')show(GAL,cur-1);
+    if(e.key==='ArrowRight')show(GAL,cur+1);
   });
 
   // 滚动进场动画
