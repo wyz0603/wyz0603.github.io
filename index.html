@@ -278,6 +278,69 @@
   .lb-nav:hover{background:rgba(255,255,255,.2)}
   .lb-prev{left:22px}.lb-next{right:22px}
 
+  /* ===================== 视觉增强(克制·高级感) ===================== */
+  body{font-size:17px}
+  ::selection{background:rgba(56,189,248,.28)}
+
+  /* Hero */
+  header{padding:108px 0 76px}
+  header h1{
+    font-size:clamp(52px,10vw,92px);font-weight:900;letter-spacing:2px;
+    background:linear-gradient(180deg,#f4f8ff 0%,#c4ddf6 58%,#8fc0e8 100%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+    filter:drop-shadow(0 6px 28px rgba(56,189,248,.20));
+  }
+  .tagline{font-size:clamp(19px,3.2vw,28px);font-weight:700}
+  .sub{font-size:clamp(15px,2vw,18px);max-width:690px}
+  .chip{font-size:15px;padding:8px 18px}
+  .cta{margin-top:40px;gap:16px}
+  .btn{font-size:16px;padding:14px 30px;border-radius:12px}
+  .btn.primary{box-shadow:0 10px 30px rgba(56,189,248,.26)}
+  .avatar{width:132px;height:132px;font-size:50px;position:relative;isolation:isolate;
+    box-shadow:0 0 46px rgba(56,189,248,.32)}
+  .avatar::before{content:"";position:absolute;inset:-3px;border-radius:50%;z-index:-1;
+    background:conic-gradient(from 140deg,var(--accent),var(--accent2),var(--accent));
+    animation:spin 9s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* 数据高亮条 */
+  .stats-band{max-width:1040px;margin:8px auto 4px;padding:0 24px;position:relative;z-index:2;
+    display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .stat{text-align:center;padding:26px 14px;border-radius:16px;
+    background:rgba(255,255,255,.02);border:1px solid var(--line);
+    transition:transform .25s,border-color .25s,box-shadow .25s}
+  .stat:hover{transform:translateY(-5px);border-color:var(--accent);box-shadow:0 14px 38px rgba(56,189,248,.14)}
+  .stat .num{font-size:clamp(40px,6vw,60px);font-weight:900;line-height:1;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .stat .num .suf{font-size:.44em;font-weight:800;margin-left:3px;-webkit-text-fill-color:var(--muted)}
+  .stat .lbl{margin-top:10px;color:var(--muted);font-size:15px;font-weight:600;letter-spacing:.5px}
+  @media(max-width:680px){.stats-band{grid-template-columns:repeat(2,1fr)}}
+
+  /* 区标题 */
+  .sec-head{margin-bottom:46px}
+  .sec-head .eyebrow{font-size:14px;letter-spacing:5px}
+  .sec-head h2{font-size:clamp(32px,5.2vw,48px);font-weight:900;letter-spacing:.5px;display:inline-block}
+  .sec-head h2::after{content:"";display:block;height:3px;width:56px;margin-top:14px;border-radius:3px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2))}
+
+  /* 字号 / 交互 */
+  .skill-card:hover,.work-card:hover{box-shadow:0 16px 42px rgba(56,189,248,.16)}
+  .skill-card h3{font-size:20px}
+  .skill-card li{font-size:15.5px}
+  .info-row{font-size:16px}
+  .nav-links{font-size:16px}
+  .nav-links a:hover{color:var(--accent)}
+  .logo{font-size:20px}
+  .tl-item h3{font-size:22px}
+  .tl-item p{font-size:15.5px}
+  .tl-date{font-size:14px}
+  .exp-top h3{font-size:23px}
+  .exp-list li{font-size:16px}
+  .exp-company{font-size:15px}
+  .bar-row .bar-top{font-size:15.5px}
+  .about-grid p{font-size:16.5px}
+
   /* ---------- 联系 ---------- */
   .contact{text-align:center}
   .contact .links{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-top:28px}
@@ -344,6 +407,13 @@
     </div>
   </div>
 </header>
+
+<div class="stats-band" id="statsBand">
+  <div class="stat reveal"><div class="num" data-to="6" data-suf="项">0</div><div class="lbl">国家级奖项</div></div>
+  <div class="stat reveal"><div class="num" data-to="13" data-suf="张">0</div><div class="lbl">获奖证书</div></div>
+  <div class="stat reveal"><div class="num" data-to="3" data-suf="个">0</div><div class="lbl">核心项目</div></div>
+  <div class="stat reveal"><div class="num" data-to="1" data-suf="段">0</div><div class="lbl">大厂实习</div></div>
+</div>
 
 <section id="about">
   <div class="wrap">
@@ -696,6 +766,26 @@
     if(e.key==='ArrowLeft')show(GAL,cur-1);
     if(e.key==='ArrowRight')show(GAL,cur+1);
   });
+
+  // ---------- 数据高亮 数字滚动 ----------
+  (function(){
+    const band=document.getElementById('statsBand'); if(!band)return;
+    const o=new IntersectionObserver(es=>{
+      es.forEach(e=>{if(e.isIntersecting){
+        band.querySelectorAll('.num').forEach(el=>{
+          const t=+el.dataset.to, suf=el.dataset.suf||'', st=performance.now(), dur=1100;
+          (function tick(now){
+            const p=Math.min(1,(now-st)/dur);
+            const v=Math.round(t*(1-Math.pow(1-p,3)));
+            el.innerHTML=v+(suf?`<span class="suf">${suf}</span>`:'');
+            if(p<1)requestAnimationFrame(tick);
+          })(st);
+        });
+        o.disconnect();
+      }});
+    },{threshold:.4});
+    o.observe(band);
+  })();
 
   // 滚动进场动画
   const io=new IntersectionObserver(entries=>{
