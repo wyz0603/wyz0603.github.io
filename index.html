@@ -110,6 +110,7 @@
   #about::before{background-image:url(assets/bg/diagonal.svg);background-size:34px 34px}
   #skills::before{background-image:url(assets/bg/dots.svg);background-size:30px 30px}
   #experience::before{background-image:url(assets/bg/circuit.svg);background-size:118px 118px}
+  #featured::before{background-image:url(assets/bg/circuit.svg);background-size:140px 140px;opacity:.4}
   #projects::before{background-image:url(assets/bg/hex.svg);background-size:auto 96px;opacity:.5}
   #awards::before{background-image:url(assets/bg/blueprint.svg);background-size:28px 28px}
   #contact::before{background-image:url(assets/bg/dots.svg);background-size:36px 36px;opacity:.4}
@@ -340,6 +341,34 @@
   .exp-company{font-size:15px}
   .bar-row .bar-top{font-size:15.5px}
   .about-grid p{font-size:16.5px}
+  .exp-list code,.ft-item code{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:.86em;
+    background:rgba(56,189,248,.10);border:1px solid var(--line);border-radius:5px;
+    padding:1px 6px;color:#bfe3fb}
+
+  /* ===== 重点项目 ===== */
+  .featured-card{position:relative;border-radius:20px;padding:34px;overflow:hidden;
+    background:linear-gradient(180deg,rgba(56,189,248,.06),rgba(129,140,248,.04)),var(--card);
+    border:1px solid var(--line)}
+  .featured-card::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2),transparent)}
+  .ft-badge{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.5px;
+    padding:5px 14px;border-radius:999px;color:var(--accent);
+    background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.3)}
+  .ft-head .when{float:right;color:var(--muted);font-size:14px;font-weight:600;margin-top:6px}
+  .ft-head h3{font-size:clamp(21px,3vw,28px);font-weight:800;margin:16px 0 12px;line-height:1.35}
+  .ft-sub{color:var(--muted);font-size:16px;line-height:1.7;margin-bottom:26px}
+  .ft-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .ft-item{display:flex;gap:14px;padding:18px;border-radius:14px;
+    background:rgba(255,255,255,.02);border:1px solid var(--line);
+    transition:transform .2s,border-color .2s}
+  .ft-item:hover{transform:translateY(-3px);border-color:var(--accent)}
+  .ft-ic{flex-shrink:0;width:40px;height:40px;border-radius:11px;font-size:20px;
+    display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,rgba(56,189,248,.18),rgba(129,140,248,.18));border:1px solid var(--line)}
+  .ft-item b{display:block;font-size:16px;margin-bottom:5px;color:var(--text)}
+  .ft-item p{color:var(--muted);font-size:14px;line-height:1.6}
+  .featured-card .tags{margin-top:24px}
+  @media(max-width:680px){.ft-grid{grid-template-columns:1fr}.ft-head .when{float:none;display:block;margin:0 0 10px}}
 
   /* ---------- 联系 ---------- */
   .contact{text-align:center}
@@ -378,6 +407,7 @@
       <a href="#about">关于我</a>
       <a href="#skills">技能</a>
       <a href="#experience">实习</a>
+      <a href="#featured">重点</a>
       <a href="#projects">项目</a>
       <a href="#works">作品</a>
       <a href="#awards">荣誉</a>
@@ -411,7 +441,7 @@
 <div class="stats-band" id="statsBand">
   <div class="stat reveal"><div class="num" data-to="6" data-suf="项">0</div><div class="lbl">国家级奖项</div></div>
   <div class="stat reveal"><div class="num" data-to="13" data-suf="张">0</div><div class="lbl">获奖证书</div></div>
-  <div class="stat reveal"><div class="num" data-to="3" data-suf="个">0</div><div class="lbl">核心项目</div></div>
+  <div class="stat reveal"><div class="num" data-to="4" data-suf="个">0</div><div class="lbl">核心项目</div></div>
   <div class="stat reveal"><div class="num" data-to="1" data-suf="段">0</div><div class="lbl">大厂实习</div></div>
 </div>
 
@@ -521,7 +551,51 @@
   </div>
 </section>
 
-<section id="projects" style="background:var(--bg-soft)">
+<section id="featured" style="background:var(--bg-soft)">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">Featured Project</div>
+      <h2>重点项目</h2>
+    </div>
+    <div class="featured-card reveal">
+      <div class="ft-head">
+        <span class="when">2026.01 — 2026.06 · 乐聚机器人实习</span>
+        <span class="ft-badge">★ 实习核心项目 · Leju Kuavo</span>
+        <h3>人形机器人 MID360 激光雷达仿真与自主导航系统集成</h3>
+        <p class="ft-sub">基于 Leju Kuavo 人形机器人，在 Gazebo 仿真环境中打通「激光雷达仿真 → SLAM 建图 → 自主导航」全链路，并将该能力从开发分支迁移、集成到目标工程的 SLAM / 导航工作空间（ROS Noetic / catkin）。</p>
+      </div>
+      <div class="ft-grid">
+        <div class="ft-item">
+          <div class="ft-ic">🔗</div>
+          <div><b>仿真–真机数据桥接节点</b>
+          <p>编写 C++ 节点 <code>livox_sim_bridge</code>，将 Gazebo Livox 插件输出的点云实时转换为 FAST-LIO 所需的 <code>CustomMsg</code> 与导航用 <code>PointCloud2</code>，并对 IMU / 点云施加安装姿态补偿，打通「仿真传感器 → LIO 里程计 → octomap → move_base」数据流。</p></div>
+        </div>
+        <div class="ft-item">
+          <div class="ft-ic">🧭</div>
+          <div><b>TF 树关键缺陷定位与修复</b>
+          <p>排查出 Gazebo Livox 插件重复发布 TF 导致 <code>livox_link</code> 出现双父节点、变换查询返回错误旋转，改由 robot_state_publisher 经 URDF 链路统一提供变换，解决下游建图 / 导航坐标错乱。</p></div>
+        </div>
+        <div class="ft-item">
+          <div class="ft-ic">⚙️</div>
+          <div><b>导航参数系统性调优</b>
+          <p>修复 <code>costmap_2d</code> 障碍层命名空间配置缺陷（此前障碍层始终为空）；调整局部代价地图尺寸、膨胀半径与代价缩放因子，按前瞻公式重算 MPC 速度与时域参数，显著改善卡死与绕障。</p></div>
+        </div>
+        <div class="ft-item">
+          <div class="ft-ic">🎯</div>
+          <div><b>运动控制与跨工程迁移</b>
+          <p>开发 Pure Pursuit 纯追踪控制 + 反应式重规划节点（路径被占据超阈值触发 <code>clear_costmaps</code> + 重规划）；在不同 git 分支工程间无损迁移，并通过 <code>catkin build</code> 编译验证全部产物。</p></div>
+        </div>
+      </div>
+      <div class="tags">
+        <span class="tag">ROS Noetic</span><span class="tag">C++</span><span class="tag">Python</span><span class="tag">Gazebo</span>
+        <span class="tag">FAST-LIO</span><span class="tag">Livox MID360</span><span class="tag">move_base</span>
+        <span class="tag">costmap_2d</span><span class="tag">MPC / TEB</span><span class="tag">octomap</span><span class="tag">TF2</span><span class="tag">catkin</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
   <div class="wrap">
     <div class="sec-head reveal">
       <div class="eyebrow">Projects</div>
@@ -559,7 +633,7 @@
   </div>
 </section>
 
-<section id="works">
+<section id="works" style="background:var(--bg-soft)">
   <div class="wrap">
     <div class="sec-head reveal">
       <div class="eyebrow">Works</div>
@@ -581,7 +655,7 @@
   </div>
 </section>
 
-<section id="awards" style="background:var(--bg-soft)">
+<section id="awards">
   <div class="wrap">
     <div class="sec-head reveal">
       <div class="eyebrow">Honors</div>
@@ -594,7 +668,7 @@
   </div>
 </section>
 
-<section id="contact">
+<section id="contact" style="background:var(--bg-soft)">
   <div class="wrap contact">
     <div class="sec-head reveal" style="text-align:center">
       <div class="eyebrow">Contact</div>
