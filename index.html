@@ -204,6 +204,13 @@
   .tag{font-size:12.5px;background:var(--bg-soft);border:1px solid var(--line);color:var(--muted);padding:4px 11px;border-radius:6px}
 
   /* ---------- 作品展示 ---------- */
+  /* 演示视频嵌入 */
+  .video-embed{position:relative;width:100%;max-width:920px;margin:0 auto 14px;aspect-ratio:16/9;
+    border-radius:16px;overflow:hidden;border:1px solid var(--line);
+    box-shadow:0 18px 48px rgba(0,0,0,.5);background:#000}
+  .video-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .video-cap{text-align:center;color:var(--muted);font-size:14.5px;margin:0 auto 30px}
+  .video-cap a{color:var(--accent)}
   .works-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px}
   .work-card{
     position:relative;border-radius:16px;overflow:hidden;cursor:zoom-in;
@@ -639,6 +646,12 @@
       <div class="eyebrow">Works</div>
       <h2>作品展示</h2>
     </div>
+    <div class="video-embed reveal">
+      <iframe src="//player.bilibili.com/player.html?bvid=BV18f726cEgG&page=1&high_quality=1&danmaku=0&autoplay=0"
+        scrolling="no" frameborder="no" framespacing="0" allowfullscreen="true" loading="lazy"></iframe>
+    </div>
+    <p class="video-cap">🎬 智能垃圾捡拾小车 · 完整演示视频 ·
+      <a href="https://www.bilibili.com/video/BV18f726cEgG/" target="_blank" rel="noopener">在 Bilibili 观看</a></p>
     <div class="works-grid reveal" id="worksGrid">
       <figure class="work-card" data-idx="0">
         <img class="pic" src="assets/works/work1_drone.jpg" alt="ROS 自主无人机" loading="lazy">
