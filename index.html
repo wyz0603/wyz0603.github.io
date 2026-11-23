@@ -12,7 +12,7 @@
   :root {
     --bg: #F9F7F2;
     --bg-soft: #F2EEE6;
-    --surface: rgba(255, 253, 249, 0.78);
+    --surface: rgba(255, 253, 249, 0.80);
     --surface-solid: #FFFEFC;
     --ink: #1C222D;
     --ink-soft: #4A5464;
@@ -31,6 +31,7 @@
     --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     --ease: cubic-bezier(0.22, 1, 0.36, 1);
     --maxw: 1160px;
+    --nav-h: 72px;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -39,63 +40,55 @@
     font-family: var(--sans);
     background: var(--bg);
     color: var(--ink);
-    font-size: 16px;
-    line-height: 1.85;
-    font-weight: 400;
+    font-size: 15.5px;
+    line-height: 1.82;
     overflow-x: hidden;
-    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
   a { color: inherit; text-decoration: none; }
   button { font: inherit; color: inherit; }
   img { max-width: 100%; display: block; }
   ::selection { background: rgba(51, 92, 134, 0.16); color: var(--ink); }
 
-  /* ---------- 宣纸质感与流动水彩晕染 ---------- */
-  .paper-grain {
-    position: fixed; inset: 0; z-index: 90; pointer-events: none;
-    opacity: 0.028;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
+  /* ---------- 宣纸质感 · 水彩晕染 · 贯通全站流风画布 ---------- */
   .ambient-wash {
-    position: fixed; inset: 0; z-index: -2; pointer-events: none;
+    position: fixed; inset: 0; z-index: -3; pointer-events: none;
     background:
       radial-gradient(62vw 52vh at 86% 10%, rgba(196, 117, 75, 0.095), transparent 65%),
       radial-gradient(58vw 54vh at 10% 18%, rgba(51, 92, 134, 0.085), transparent 64%),
-      radial-gradient(50vw 46vh at 74% 78%, rgba(51, 92, 134, 0.055), transparent 68%),
-      radial-gradient(45vw 40vh at 16% 88%, rgba(196, 117, 75, 0.05), transparent 65%),
+      radial-gradient(50vw 46vh at 76% 80%, rgba(51, 92, 134, 0.055), transparent 68%),
+      radial-gradient(45vw 40vh at 14% 88%, rgba(196, 117, 75, 0.05), transparent 65%),
       var(--bg);
   }
-
-  /* 顶部阅读进度细线 */
-  .scroll-line {
-    position: fixed; top: 0; left: 0; height: 2px; width: 0%; z-index: 80;
-    background: linear-gradient(90deg, var(--indigo), var(--amber));
-    opacity: 0.85;
-    transition: width 0.08s linear;
+  #flowCanvas {
+    position: fixed; inset: 0; width: 100%; height: 100%;
+    z-index: -2; pointer-events: none;
+    transition: opacity 0.65s ease;
+  }
+  body:not([data-page="home"]) #flowCanvas { opacity: 0.42; }
+  .paper-grain {
+    position: fixed; inset: 0; z-index: 90; pointer-events: none;
+    opacity: 0.026;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
-  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 32px; }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 32px; width: 100%; }
 
-  /* ---------- 极简悬浮导航 ---------- */
+  /* ---------- 极简五页导航栏 ---------- */
   nav {
     position: sticky; top: 0; z-index: 60;
-    background: rgba(249, 247, 242, 0.78);
+    background: rgba(249, 247, 242, 0.84);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1px solid transparent;
-    transition: border-color 0.35s ease, background 0.35s ease;
-  }
-  nav.scrolled {
-    border-bottom-color: var(--line);
-    background: rgba(249, 247, 242, 0.90);
+    border-bottom: 1px solid var(--line);
   }
   nav .wrap {
-    height: 74px;
+    height: var(--nav-h);
     display: flex; align-items: center; justify-content: space-between; gap: 20px;
   }
-  .brand {
-    display: flex; align-items: center; gap: 12px;
-  }
+  .brand { display: flex; align-items: center; gap: 11px; cursor: pointer; }
   .brand-mini {
     width: 32px; height: 32px; border-radius: 50%; object-fit: cover;
     border: 1px solid var(--line-strong);
@@ -104,28 +97,47 @@
   }
   .brand:hover .brand-mini { transform: scale(1.07); }
   .brand-name {
-    font-family: var(--serif); font-size: 19px; font-weight: 600; letter-spacing: 0.14em;
-    color: var(--ink);
+    font-family: var(--serif); font-size: 18.5px; font-weight: 600;
+    letter-spacing: 0.14em; color: var(--ink);
   }
   .brand-en {
     font-family: var(--latin-serif); font-style: italic; font-size: 14px;
     color: var(--ink-muted); letter-spacing: 0.06em;
-    margin-left: 2px;
   }
+
   .nav-links {
-    display: flex; align-items: center; gap: 30px; font-size: 14px; letter-spacing: 0.08em;
+    display: flex; align-items: center; gap: 6px;
   }
-  .nav-links a {
-    color: var(--ink-soft); position: relative; padding: 6px 0;
+  .nav-tab {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 999px;
+    font-size: 14px; letter-spacing: 0.08em; color: var(--ink-soft);
+    border: 1px solid transparent;
+    transition: color 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+  }
+  .nav-tab .tab-num {
+    font-family: var(--latin-serif); font-style: italic;
+    font-size: 13px; color: var(--ink-muted);
     transition: color 0.25s ease;
   }
-  .nav-links a::after {
-    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
-    background: var(--indigo); transform: scaleX(0); transform-origin: right;
-    transition: transform 0.35s var(--ease);
+  .nav-tab:hover { color: var(--ink); background: rgba(28, 34, 45, 0.035); }
+  .nav-tab.active {
+    color: var(--ink);
+    background: var(--surface-solid);
+    border-color: var(--line);
+    box-shadow: 0 4px 14px rgba(28, 34, 45, 0.05);
   }
-  .nav-links a:hover, .nav-links a.active { color: var(--ink); }
-  .nav-links a:hover::after, .nav-links a.active::after { transform: scaleX(1); transform-origin: left; }
+  .nav-tab.active .tab-num { color: var(--amber); }
+
+  .nav-right {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .folio-counter {
+    font-family: var(--latin-serif); font-style: italic;
+    font-size: 15px; color: var(--ink-muted); letter-spacing: 0.08em;
+    min-width: 48px; text-align: right;
+  }
+  .folio-counter strong { color: var(--amber); font-weight: 500; }
 
   .menu-btn {
     display: none; background: none; border: 0; cursor: pointer;
@@ -133,710 +145,572 @@
     color: var(--ink);
   }
 
-  /* ---------- 首屏 Hero · 飘逸留白 ---------- */
-  header.hero {
-    position: relative;
-    padding: 88px 0 84px;
-    overflow: hidden;
+  /* ---------- 分页容器与翻页动效 ---------- */
+  main { flex: 1; display: flex; flex-direction: column; }
+
+  .page {
+    display: none;
+    flex: 1;
+    animation: pageEnter 0.58s var(--ease) both;
   }
-  #flowCanvas {
-    position: absolute; inset: 0; width: 100%; height: 100%;
-    z-index: 0; pointer-events: none;
-  }
-  .hero .wrap { position: relative; z-index: 1; }
-  .hero-grid {
-    display: grid;
-    grid-template-columns: 1.2fr 0.92fr;
-    gap: 56px;
-    align-items: center;
+  .page.active { display: flex; flex-direction: column; }
+
+  @keyframes pageEnter {
+    from { opacity: 0; transform: translateY(14px); filter: blur(3px); }
+    to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
   }
 
+  .page-inner {
+    flex: 1;
+    padding: 52px 0 40px;
+  }
+
+  /* 章节页眉 */
+  .page-head {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 20px; flex-wrap: wrap;
+    padding-bottom: 20px;
+    margin-bottom: 42px;
+    border-bottom: 1px solid var(--line);
+  }
+  .page-head-left { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+  .page-num {
+    font-family: var(--latin-serif); font-style: italic;
+    font-size: 22px; color: var(--amber);
+  }
+  .page-head h1 {
+    font-family: var(--serif);
+    font-size: clamp(28px, 3.6vw, 38px);
+    font-weight: 600; letter-spacing: 0.12em; line-height: 1.2;
+  }
+  .page-head .page-en {
+    font-family: var(--latin-serif); font-style: italic;
+    font-size: 16.5px; color: var(--ink-muted); letter-spacing: 0.08em;
+  }
+
+  /* 区块副标题 */
+  .sub-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 14px; margin: 44px 0 24px;
+  }
+  .sub-head:first-of-type { margin-top: 0; }
+  .sub-head h2 {
+    font-family: var(--serif); font-size: 20px; font-weight: 600;
+    letter-spacing: 0.1em; color: var(--ink);
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .sub-head h2::before {
+    content: ""; width: 18px; height: 1px; background: var(--amber);
+  }
+  .sub-head span {
+    font-family: var(--latin-serif); font-style: italic;
+    font-size: 14.5px; color: var(--ink-muted);
+  }
+
+  /* 底部翻页条 */
+  .pager {
+    margin-top: 52px;
+    padding-top: 26px;
+    border-top: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+  }
+  .pager-btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 10px 20px; border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    font-size: 14px; letter-spacing: 0.06em; color: var(--ink-soft);
+    transition: transform 0.3s var(--ease), border-color 0.25s ease, color 0.25s ease, box-shadow 0.3s ease;
+  }
+  .pager-btn:hover {
+    color: var(--indigo);
+    border-color: rgba(51, 92, 134, 0.35);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(28, 34, 45, 0.06);
+  }
+  .pager-btn.next { background: var(--ink); color: #F9F7F2; border-color: var(--ink); }
+  .pager-btn.next:hover { background: var(--indigo); border-color: var(--indigo); color: #F9F7F2; }
+  .pager-meta {
+    font-family: var(--latin-serif); font-style: italic;
+    font-size: 14.5px; color: var(--ink-muted); letter-spacing: 0.08em;
+  }
+
+  /* =========================================================
+     卷一 · 首页（一屏完满封面）
+     ========================================================= */
+  .home-stage {
+    flex: 1;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 36px 0 28px;
+    min-height: calc(100vh - var(--nav-h));
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.18fr 0.92fr;
+    gap: 48px;
+    align-items: center;
+  }
   .hero-eyebrow {
     display: inline-flex; align-items: center; gap: 10px;
     font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.22em;
     text-transform: uppercase; color: var(--indigo);
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
   .hero-eyebrow .dot {
     width: 6px; height: 6px; border-radius: 50%;
     background: var(--amber);
     box-shadow: 0 0 0 5px var(--amber-soft);
   }
-
-  .hero-title-row {
-    display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap;
-  }
-  .hero h1 {
+  .hero-title-row { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+  .hero-copy h1 {
     font-family: var(--serif);
-    font-size: clamp(48px, 7.2vw, 84px);
-    font-weight: 600;
-    line-height: 1.08;
-    letter-spacing: 0.14em;
+    font-size: clamp(46px, 6.4vw, 76px);
+    font-weight: 600; line-height: 1.08; letter-spacing: 0.14em;
     color: var(--ink);
   }
   .seal {
     display: inline-flex; align-items: center; justify-content: center;
-    width: 30px; height: 30px;
-    border: 1.5px solid var(--amber);
-    border-radius: 4px;
+    width: 28px; height: 28px;
+    border: 1.5px solid var(--amber); border-radius: 4px;
     color: var(--amber);
-    font-family: var(--serif); font-size: 14px; font-weight: 600; line-height: 1;
-    transform: translateY(-8px) rotate(-3deg);
-    opacity: 0.88;
-    user-select: none;
+    font-family: var(--serif); font-size: 13.5px; font-weight: 600; line-height: 1;
+    transform: translateY(-7px) rotate(-3deg);
+    opacity: 0.88; user-select: none;
   }
   .hero-latin {
-    font-family: var(--latin-serif);
-    font-style: italic;
-    font-size: clamp(20px, 2.4vw, 27px);
-    font-weight: 400;
-    color: var(--ink-muted);
-    letter-spacing: 0.06em;
-    margin-top: 8px;
+    font-family: var(--latin-serif); font-style: italic;
+    font-size: clamp(19px, 2.2vw, 25px);
+    color: var(--ink-muted); letter-spacing: 0.06em; margin-top: 6px;
   }
-
-  /* 诗意流动副标题 */
   .poetic-role {
-    margin-top: 26px;
-    min-height: 34px;
-    font-family: var(--serif);
-    font-size: clamp(18px, 2.2vw, 23px);
-    color: var(--indigo);
-    letter-spacing: 0.08em;
+    margin-top: 22px; min-height: 32px;
+    font-family: var(--serif); font-size: clamp(17px, 2vw, 21px);
+    color: var(--indigo); letter-spacing: 0.08em;
     display: flex; align-items: center; gap: 12px;
   }
   .poetic-role::before {
-    content: ""; width: 28px; height: 1px; background: var(--indigo); opacity: 0.55; flex-shrink: 0;
+    content: ""; width: 26px; height: 1px; background: var(--indigo); opacity: 0.55; flex-shrink: 0;
   }
   .poetic-text {
-    transition: opacity 0.65s var(--ease), transform 0.65s var(--ease), filter 0.65s var(--ease);
+    transition: opacity 0.6s var(--ease), transform 0.6s var(--ease), filter 0.6s var(--ease);
   }
-  .poetic-text.fading {
-    opacity: 0; transform: translateY(6px); filter: blur(3px);
-  }
+  .poetic-text.fading { opacity: 0; transform: translateY(6px); filter: blur(3px); }
 
   .hero-desc {
-    margin-top: 20px;
-    color: var(--ink-soft);
-    font-size: 16px;
-    max-width: 520px;
-    line-height: 1.95;
+    margin-top: 16px; color: var(--ink-soft); font-size: 15.5px;
+    max-width: 510px; line-height: 1.9;
   }
-
   .hero-meta {
-    margin-top: 28px;
-    display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px;
+    margin-top: 22px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px;
     font-size: 13.5px; color: var(--ink-muted); letter-spacing: 0.05em;
   }
-  .hero-meta span.sep { color: var(--line-strong); }
+  .hero-meta .sep { color: var(--line-strong); }
 
   .hero-actions {
-    margin-top: 38px;
-    display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+    margin-top: 32px;
+    display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
   }
   .btn-ink {
     display: inline-flex; align-items: center; gap: 10px;
-    padding: 13px 30px;
-    border-radius: 999px;
-    background: var(--ink);
-    color: #F9F7F2;
+    padding: 12px 28px; border-radius: 999px;
+    background: var(--ink); color: #F9F7F2;
     font-size: 14.5px; letter-spacing: 0.08em;
-    transition: transform 0.35s var(--ease), background 0.35s ease, box-shadow 0.35s ease;
     box-shadow: 0 10px 26px rgba(28, 34, 45, 0.14);
+    transition: transform 0.35s var(--ease), background 0.35s ease, box-shadow 0.35s ease;
   }
   .btn-ink:hover {
-    transform: translateY(-2px);
-    background: var(--indigo);
+    transform: translateY(-2px); background: var(--indigo);
     box-shadow: 0 14px 30px rgba(51, 92, 134, 0.22);
   }
   .link-arrow {
     display: inline-flex; align-items: center; gap: 6px;
-    font-size: 14.5px; color: var(--ink-soft); letter-spacing: 0.06em;
-    padding: 8px 2px;
-    border-bottom: 1px solid var(--line-strong);
+    font-size: 14.2px; color: var(--ink-soft); letter-spacing: 0.06em;
+    padding: 7px 2px; border-bottom: 1px solid var(--line-strong);
     transition: color 0.25s ease, border-color 0.25s ease;
   }
   .link-arrow .arr { display: inline-block; transition: transform 0.3s var(--ease); }
   .link-arrow:hover { color: var(--indigo); border-bottom-color: var(--indigo); }
   .link-arrow:hover .arr { transform: translate(2px, -2px); }
 
-  /* ---------- 右侧艺术头像展框 (wyz.jpg) ---------- */
+  /* 艺术头像展框 */
   .portrait-stage {
-    position: relative;
-    display: flex; align-items: center; justify-content: center;
-    padding: 24px 10px;
+    position: relative; display: flex; align-items: center; justify-content: center;
+    padding: 16px 8px;
   }
   .portrait-aura {
-    position: absolute;
-    width: 390px; height: 390px; max-width: 88vw; max-height: 88vw;
+    position: absolute; width: 370px; height: 370px; max-width: 84vw; max-height: 84vw;
     border-radius: 50%;
     background:
       radial-gradient(circle at 72% 26%, rgba(196, 117, 75, 0.22), transparent 58%),
       radial-gradient(circle at 28% 72%, rgba(51, 92, 134, 0.18), transparent 60%);
-    filter: blur(28px);
-    z-index: 0;
+    filter: blur(26px); z-index: 0;
     animation: auraDrift 12s ease-in-out infinite alternate;
   }
   @keyframes auraDrift {
     0% { transform: translate(-8px, 6px) scale(0.97); }
     100% { transform: translate(10px, -8px) scale(1.04); }
   }
-
   .portrait-wrap {
-    position: relative;
-    width: clamp(260px, 31vw, 354px);
-    aspect-ratio: 1 / 1;
-    z-index: 1;
-    cursor: zoom-in;
+    position: relative; width: clamp(250px, 28vw, 336px); aspect-ratio: 1 / 1;
+    z-index: 1; cursor: zoom-in;
     animation: floatGentle 7.5s ease-in-out infinite;
-    transition: transform 0.45s var(--ease);
   }
   @keyframes floatGentle {
     0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-9px); }
+    50% { transform: translateY(-8px); }
   }
-
-  /* 轻盈飘逸轨道环 */
   .orbit-svg {
-    position: absolute; inset: -24px; width: calc(100% + 48px); height: calc(100% + 48px);
+    position: absolute; inset: -22px; width: calc(100% + 44px); height: calc(100% + 44px);
     pointer-events: none; z-index: 0;
     animation: slowOrbit 44s linear infinite;
   }
   @keyframes slowOrbit { to { transform: rotate(360deg); } }
 
   .portrait-frame {
-    position: relative; z-index: 1;
-    width: 100%; height: 100%;
-    border-radius: 50%;
-    padding: 10px;
-    background: linear-gradient(145deg, rgba(255,255,255,0.92), rgba(242,238,230,0.68));
+    position: relative; z-index: 1; width: 100%; height: 100%;
+    border-radius: 50%; padding: 9px;
+    background: linear-gradient(145deg, rgba(255,255,255,0.92), rgba(242,238,230,0.70));
     border: 1px solid rgba(28, 34, 45, 0.10);
-    box-shadow:
-      0 26px 60px rgba(28, 34, 45, 0.11),
-      0 4px 18px rgba(51, 92, 134, 0.08);
-    transition: box-shadow 0.45s var(--ease), transform 0.45s var(--ease);
+    box-shadow: 0 24px 56px rgba(28, 34, 45, 0.11), 0 4px 16px rgba(51, 92, 134, 0.08);
+    transition: box-shadow 0.45s var(--ease);
   }
   .portrait-wrap:hover .portrait-frame {
-    box-shadow:
-      0 32px 72px rgba(28, 34, 45, 0.15),
-      0 8px 24px rgba(196, 117, 75, 0.14);
+    box-shadow: 0 30px 68px rgba(28, 34, 45, 0.15), 0 8px 24px rgba(196, 117, 75, 0.14);
   }
   .portrait-img-box {
-    width: 100%; height: 100%;
-    border-radius: 50%;
-    overflow: hidden;
-    position: relative;
-    background: #EFECE5;
+    width: 100%; height: 100%; border-radius: 50%; overflow: hidden;
+    position: relative; background: #EFECE5;
   }
   .portrait-img-box img {
-    width: 100%; height: 100%;
-    object-fit: cover;
-    object-position: center 26%;
+    width: 100%; height: 100%; object-fit: cover; object-position: center 26%;
     transition: transform 0.75s var(--ease);
   }
-  .portrait-wrap:hover .portrait-img-box img {
-    transform: scale(1.045);
-  }
+  .portrait-wrap:hover .portrait-img-box img { transform: scale(1.045); }
   .portrait-hint {
     position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%) translateY(6px);
-    background: rgba(28, 34, 45, 0.72);
-    backdrop-filter: blur(8px);
-    color: #F9F7F2;
-    font-size: 11.5px; letter-spacing: 0.12em;
-    padding: 5px 13px; border-radius: 999px;
-    opacity: 0; pointer-events: none;
-    transition: opacity 0.3s ease, transform 0.3s var(--ease);
-    white-space: nowrap;
+    background: rgba(28, 34, 45, 0.74); backdrop-filter: blur(8px);
+    color: #F9F7F2; font-size: 11.5px; letter-spacing: 0.12em;
+    padding: 5px 13px; border-radius: 999px; opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s var(--ease); white-space: nowrap;
   }
   .portrait-wrap:hover .portrait-hint { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  /* 侧边竖排题记 */
   .vertical-note {
-    position: absolute;
-    right: -14px; top: 50%; transform: translateY(-50%);
-    writing-mode: vertical-rl;
-    font-family: var(--serif);
-    font-size: 12.5px;
-    letter-spacing: 0.34em;
-    color: var(--ink-muted);
-    display: flex; align-items: center; gap: 12px;
-    pointer-events: none;
+    position: absolute; right: -12px; top: 50%; transform: translateY(-50%);
+    writing-mode: vertical-rl; font-family: var(--serif);
+    font-size: 12px; letter-spacing: 0.34em; color: var(--ink-muted);
+    display: flex; align-items: center; gap: 10px; pointer-events: none;
   }
-  .vertical-note::before {
-    content: ""; width: 1px; height: 28px; background: var(--amber); opacity: 0.6;
-  }
+  .vertical-note::before { content: ""; width: 1px; height: 24px; background: var(--amber); opacity: 0.6; }
 
   .portrait-caption {
-    position: absolute;
-    left: -6px; bottom: 8px; z-index: 2;
-    background: rgba(255, 253, 249, 0.88);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    padding: 7px 16px;
-    font-family: var(--latin-serif);
-    font-style: italic;
-    font-size: 14px;
-    color: var(--ink-soft);
-    box-shadow: 0 8px 22px rgba(28, 34, 45, 0.06);
+    position: absolute; left: -6px; bottom: 6px; z-index: 2;
+    background: rgba(255, 253, 249, 0.90); backdrop-filter: blur(10px);
+    border: 1px solid var(--line); border-radius: 999px;
+    padding: 6px 15px; font-family: var(--latin-serif); font-style: italic;
+    font-size: 13.8px; color: var(--ink-soft);
+    box-shadow: 0 8px 20px rgba(28, 34, 45, 0.06);
   }
-  .portrait-caption span { color: var(--amber); font-style: normal; margin-right: 6px; }
+  .portrait-caption span { color: var(--amber); font-style: normal; margin-right: 5px; }
 
-  /* ---------- 静谧数据长廊 ---------- */
-  .metrics-strip {
+  /* 首页底部一屏导览与数据带 */
+  .home-footer-band {
+    margin-top: 44px;
+    padding-top: 28px;
     border-top: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
-    background: rgba(255, 253, 249, 0.45);
-  }
-  .metrics-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
   }
-  .metric {
-    padding: 36px 24px;
-    text-align: center;
-    position: relative;
-  }
-  .metric:not(:last-child)::after {
-    content: ""; position: absolute; right: 0; top: 24%; bottom: 24%;
-    width: 1px; background: var(--line);
-  }
-  .metric-num {
-    font-family: var(--latin-serif);
-    font-size: clamp(40px, 5vw, 56px);
-    font-weight: 500;
-    line-height: 1;
-    color: var(--ink);
-    letter-spacing: -0.01em;
-  }
-  .metric-num .suf {
-    font-family: var(--serif);
-    font-size: 15px;
-    font-weight: 400;
-    color: var(--amber);
-    margin-left: 4px;
-    vertical-align: baseline;
-  }
-  .metric-lbl {
-    margin-top: 10px;
-    font-size: 13.5px;
-    letter-spacing: 0.14em;
-    color: var(--ink-muted);
-  }
-
-  /* ---------- 通用章节节奏 ---------- */
-  section {
-    padding: 104px 0;
-    position: relative;
-  }
-  section.tinted {
-    background: linear-gradient(180deg, rgba(242, 238, 230, 0.55) 0%, rgba(242, 238, 230, 0.35) 100%);
-    border-top: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
-  }
-
-  .sec-head {
-    display: flex; align-items: flex-end; justify-content: space-between;
-    gap: 24px; flex-wrap: wrap;
-    margin-bottom: 56px;
-    padding-bottom: 22px;
-    border-bottom: 1px solid var(--line);
-  }
-  .sec-title-group { display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap; }
-  .sec-index {
-    font-family: var(--latin-serif);
-    font-style: italic;
-    font-size: 20px;
-    color: var(--amber);
-    letter-spacing: 0.04em;
-  }
-  .sec-head h2 {
-    font-family: var(--serif);
-    font-size: clamp(28px, 3.6vw, 40px);
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    color: var(--ink);
-    line-height: 1.2;
-  }
-  .sec-en {
-    font-family: var(--latin-serif);
-    font-style: italic;
-    font-size: 17px;
-    color: var(--ink-muted);
-    letter-spacing: 0.08em;
-  }
-
-  /* ---------- 01 关于我 ---------- */
-  .about-layout {
-    display: grid;
-    grid-template-columns: 1.35fr 0.9fr;
-    gap: 64px;
-    align-items: start;
-  }
-  .pull-quote {
-    font-family: var(--serif);
-    font-size: clamp(20px, 2.3vw, 25px);
-    line-height: 1.7;
-    color: var(--ink);
-    letter-spacing: 0.04em;
-    padding-left: 22px;
-    border-left: 2px solid var(--amber);
-    margin-bottom: 28px;
-  }
-  .about-prose p {
-    color: var(--ink-soft);
-    margin-bottom: 18px;
-    font-size: 15.8px;
-    line-height: 1.95;
-  }
-  .about-prose strong {
-    color: var(--indigo);
-    font-weight: 500;
-  }
-
-  .folio-card {
+  .home-card-link {
     background: var(--surface);
     border: 1px solid var(--line);
-    border-radius: 18px;
-    padding: 28px 30px;
-    box-shadow: 0 12px 34px rgba(28, 34, 45, 0.04);
+    border-radius: 16px;
+    padding: 18px 20px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    transition: transform 0.35s var(--ease), border-color 0.25s ease, box-shadow 0.35s ease;
+  }
+  .home-card-link:hover {
+    transform: translateY(-4px);
+    border-color: rgba(51, 92, 134, 0.34);
+    box-shadow: 0 14px 32px rgba(28, 34, 45, 0.06);
+  }
+  .hcl-top {
+    display: flex; align-items: baseline; justify-content: space-between;
+  }
+  .hcl-num {
+    font-family: var(--latin-serif); font-size: 32px; font-weight: 500;
+    line-height: 1; color: var(--ink);
+  }
+  .hcl-num .suf { font-family: var(--serif); font-size: 13px; color: var(--amber); margin-left: 3px; }
+  .hcl-arr { font-size: 14px; color: var(--ink-muted); transition: transform 0.3s var(--ease), color 0.25s ease; }
+  .home-card-link:hover .hcl-arr { transform: translate(2px, -2px); color: var(--indigo); }
+  .hcl-title {
+    margin-top: 10px; font-family: var(--serif); font-size: 15px; font-weight: 600;
+    letter-spacing: 0.06em; color: var(--ink);
+  }
+  .hcl-sub { font-size: 12.5px; color: var(--ink-muted); margin-top: 2px; }
+
+  /* =========================================================
+     卷二 · 关于与技艺（关于 + 技能 + 实习）
+     ========================================================= */
+  .about-layout {
+    display: grid; grid-template-columns: 1.38fr 0.88fr;
+    gap: 44px; align-items: start;
+  }
+  .pull-quote {
+    font-family: var(--serif); font-size: clamp(19px, 2.1vw, 23px);
+    line-height: 1.7; color: var(--ink); letter-spacing: 0.04em;
+    padding-left: 20px; border-left: 2px solid var(--amber);
+    margin-bottom: 22px;
+  }
+  .about-prose p { color: var(--ink-soft); margin-bottom: 14px; font-size: 15.2px; line-height: 1.9; }
+  .about-prose strong { color: var(--indigo); font-weight: 500; }
+
+  .folio-card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 18px; padding: 24px 26px;
+    box-shadow: 0 12px 32px rgba(28, 34, 45, 0.04);
   }
   .folio-head {
-    font-family: var(--latin-serif);
-    font-style: italic;
-    font-size: 15px;
-    color: var(--ink-muted);
-    letter-spacing: 0.12em;
-    margin-bottom: 14px;
+    font-family: var(--latin-serif); font-style: italic;
+    font-size: 14.5px; color: var(--ink-muted); letter-spacing: 0.12em;
+    margin-bottom: 10px;
   }
   .info-row {
     display: flex; justify-content: space-between; align-items: baseline;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--line);
-    font-size: 14.8px;
+    padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 14.5px;
   }
   .info-row:last-child { border-bottom: 0; padding-bottom: 2px; }
-  .info-row .k { color: var(--ink-muted); letter-spacing: 0.08em; font-size: 13.5px; }
+  .info-row .k { color: var(--ink-muted); letter-spacing: 0.08em; font-size: 13px; }
   .info-row .v { color: var(--ink); font-weight: 500; }
   .info-row a.v:hover { color: var(--indigo); }
 
-  /* ---------- 02 专业技能 ---------- */
-  .skills-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
-  }
+  .skills-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
   .skill-card {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 18px;
-    padding: 28px 24px;
-    transition: transform 0.4s var(--ease), border-color 0.35s ease, box-shadow 0.4s var(--ease);
-    display: flex; flex-direction: column;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 16px; padding: 22px 20px;
+    transition: transform 0.35s var(--ease), border-color 0.3s ease, box-shadow 0.35s var(--ease);
   }
   .skill-card:hover {
-    transform: translateY(-5px);
-    border-color: rgba(51, 92, 134, 0.32);
-    box-shadow: 0 18px 40px rgba(28, 34, 45, 0.06);
+    transform: translateY(-4px); border-color: rgba(51, 92, 134, 0.32);
+    box-shadow: 0 14px 34px rgba(28, 34, 45, 0.06);
   }
-  .skill-top {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 20px;
-  }
-  .skill-roman {
-    font-family: var(--latin-serif); font-style: italic;
-    font-size: 18px; color: var(--amber);
-  }
+  .skill-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .skill-roman { font-family: var(--latin-serif); font-style: italic; font-size: 17px; color: var(--amber); }
   .skill-ico {
-    width: 34px; height: 34px; border-radius: 50%;
-    background: var(--indigo-soft);
-    color: var(--indigo);
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--indigo-soft); color: var(--indigo);
     display: flex; align-items: center; justify-content: center;
   }
   .skill-card h3 {
-    font-family: var(--serif);
-    font-size: 19px; font-weight: 600; letter-spacing: 0.08em;
-    margin-bottom: 14px; color: var(--ink);
+    font-family: var(--serif); font-size: 17.5px; font-weight: 600;
+    letter-spacing: 0.06em; margin-bottom: 10px;
   }
-  .skill-card ul { list-style: none; color: var(--ink-soft); font-size: 14.2px; }
-  .skill-card li {
-    padding: 5px 0 5px 15px; position: relative;
-  }
+  .skill-card ul { list-style: none; color: var(--ink-soft); font-size: 13.8px; }
+  .skill-card li { padding: 4px 0 4px 14px; position: relative; }
   .skill-card li::before {
-    content: ""; position: absolute; left: 0; top: 15px;
+    content: ""; position: absolute; left: 0; top: 13px;
     width: 5px; height: 1px; background: var(--indigo); opacity: 0.65;
   }
 
-  /* 轻盈墨迹刻度条 */
   .spectrum-wrap {
-    margin-top: 56px;
-    padding-top: 42px;
-    border-top: 1px solid var(--line);
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 28px 56px;
+    margin-top: 26px; padding: 24px 28px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px 48px;
   }
   .bar-row .bar-top {
     display: flex; justify-content: space-between; align-items: baseline;
-    margin-bottom: 10px; font-size: 14.5px; color: var(--ink);
+    margin-bottom: 8px; font-size: 14px; color: var(--ink);
   }
-  .bar-row .pct {
-    font-family: var(--latin-serif); font-style: italic;
-    font-size: 17px; color: var(--indigo);
-  }
-  .bar-track {
-    height: 2px; background: rgba(28, 34, 45, 0.11);
-    position: relative; border-radius: 2px;
-  }
+  .bar-row .pct { font-family: var(--latin-serif); font-style: italic; font-size: 16px; color: var(--indigo); }
+  .bar-track { height: 2px; background: rgba(28, 34, 45, 0.11); position: relative; border-radius: 2px; }
   .bar-fill {
     height: 100%; width: 0;
     background: linear-gradient(90deg, var(--indigo), var(--amber));
-    border-radius: 2px;
-    position: relative;
-    transition: width 1.4s var(--ease);
+    border-radius: 2px; position: relative;
+    transition: width 1.2s var(--ease);
   }
   .bar-fill::after {
     content: ""; position: absolute; right: -3px; top: -3px;
     width: 8px; height: 8px; border-radius: 50%;
-    background: var(--bg);
-    border: 1.5px solid var(--amber);
+    background: var(--bg); border: 1.5px solid var(--amber);
   }
 
-  /* ---------- 03 实习经历 ---------- */
-  .exp-spread {
-    display: grid;
-    grid-template-columns: 240px 1fr;
-    gap: 48px;
-    align-items: start;
+  .exp-card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 18px; padding: 30px 34px; position: relative;
+    box-shadow: 0 12px 34px rgba(28, 34, 45, 0.04);
   }
-  .exp-aside {
-    position: sticky; top: 104px;
+  .exp-card::before {
+    content: ""; position: absolute; left: 0; top: 28px; bottom: 28px; width: 2.5px;
+    background: linear-gradient(180deg, var(--indigo), var(--amber)); border-radius: 2px;
   }
-  .exp-period {
-    font-family: var(--mono); font-size: 13px; color: var(--indigo);
-    letter-spacing: 0.08em;
+  .exp-head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 16px; flex-wrap: wrap;
   }
+  .exp-card h3 { font-family: var(--serif); font-size: 22px; font-weight: 600; letter-spacing: 0.06em; }
+  .exp-role { margin-top: 4px; font-size: 14.5px; color: var(--indigo); font-weight: 500; }
+  .exp-right { text-align: right; }
+  .exp-period { font-family: var(--mono); font-size: 12.5px; color: var(--ink-muted); }
   .exp-badge {
-    display: inline-block; margin-top: 12px;
-    font-size: 12.5px; letter-spacing: 0.06em;
-    padding: 5px 12px; border-radius: 999px;
+    display: inline-block; margin-top: 6px; font-size: 12px; letter-spacing: 0.06em;
+    padding: 3px 11px; border-radius: 999px;
     background: var(--amber-soft); color: var(--amber);
     border: 1px solid rgba(196, 117, 75, 0.22);
   }
-  .exp-main {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 20px;
-    padding: 38px 42px;
-    box-shadow: 0 14px 38px rgba(28, 34, 45, 0.04);
-    position: relative;
-  }
-  .exp-main::before {
-    content: ""; position: absolute; left: 0; top: 34px; bottom: 34px; width: 2px;
-    background: linear-gradient(180deg, var(--indigo), var(--amber));
-    border-radius: 2px;
-  }
-  .exp-main h3 {
-    font-family: var(--serif); font-size: 25px; font-weight: 600;
-    letter-spacing: 0.06em; color: var(--ink);
-  }
-  .exp-role {
-    margin-top: 6px; font-size: 15px; color: var(--indigo); font-weight: 500;
-  }
   .exp-company {
-    margin: 20px 0 24px; color: var(--ink-muted); font-size: 14.8px; line-height: 1.85;
-    padding-bottom: 22px; border-bottom: 1px solid var(--line);
+    margin: 16px 0 18px; padding-bottom: 16px; border-bottom: 1px solid var(--line);
+    color: var(--ink-muted); font-size: 14.2px; line-height: 1.8;
   }
-  .exp-list { list-style: none; display: grid; gap: 14px; }
-  .exp-list li {
-    position: relative; padding-left: 22px; color: var(--ink-soft); font-size: 15.2px;
-  }
-  .exp-list li::before {
-    content: "—"; position: absolute; left: 0; color: var(--amber);
-  }
+  .exp-list { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 12px 28px; }
+  .exp-list li { position: relative; padding-left: 20px; color: var(--ink-soft); font-size: 14.4px; }
+  .exp-list li::before { content: "—"; position: absolute; left: 0; color: var(--amber); }
   .exp-list li b { color: var(--ink); font-weight: 600; }
 
-  /* ---------- 04 重点项目 ---------- */
+  /* =========================================================
+     卷三 · 项目工程（重点项目 + 项目足迹）
+     ========================================================= */
   .featured-plate {
-    background: var(--surface-solid);
-    border: 1px solid var(--line);
-    border-radius: 22px;
-    padding: 46px 48px;
-    box-shadow: 0 18px 50px rgba(28, 34, 45, 0.045);
-    position: relative;
-    overflow: hidden;
+    background: var(--surface-solid); border: 1px solid var(--line);
+    border-radius: 20px; padding: 34px 38px;
+    box-shadow: 0 16px 44px rgba(28, 34, 45, 0.045);
+    position: relative; overflow: hidden;
   }
   .featured-plate::before {
     content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px;
     background: linear-gradient(90deg, var(--indigo), var(--amber), transparent);
   }
-  .ft-meta {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 14px; flex-wrap: wrap; margin-bottom: 18px;
-  }
+  .ft-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
   .ft-kicker {
-    font-size: 12.5px; letter-spacing: 0.12em; color: var(--indigo);
-    padding: 5px 14px; border-radius: 999px;
-    background: var(--indigo-soft);
+    font-size: 12px; letter-spacing: 0.12em; color: var(--indigo);
+    padding: 4px 13px; border-radius: 999px; background: var(--indigo-soft);
   }
-  .ft-when {
-    font-family: var(--mono); font-size: 12.5px; color: var(--ink-muted);
-  }
+  .ft-when { font-family: var(--mono); font-size: 12px; color: var(--ink-muted); }
   .featured-plate h3 {
-    font-family: var(--serif);
-    font-size: clamp(22px, 3vw, 31px);
+    font-family: var(--serif); font-size: clamp(20px, 2.6vw, 27px);
     font-weight: 600; line-height: 1.4; letter-spacing: 0.04em;
-    color: var(--ink);
   }
-  .ft-sub {
-    margin-top: 14px; color: var(--ink-soft); font-size: 15.6px; max-width: 820px; line-height: 1.9;
-  }
-  .ft-grid {
-    margin-top: 34px;
-    display: grid; grid-template-columns: 1fr 1fr; gap: 22px;
-  }
+  .ft-sub { margin-top: 10px; color: var(--ink-soft); font-size: 14.8px; line-height: 1.85; }
+  .ft-grid { margin-top: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .ft-item {
-    padding: 24px 26px;
-    border-radius: 16px;
-    background: var(--bg);
-    border: 1px solid var(--line);
-    transition: transform 0.35s var(--ease), border-color 0.3s ease;
+    padding: 18px 20px; border-radius: 14px;
+    background: var(--bg); border: 1px solid var(--line);
+    transition: transform 0.3s var(--ease), border-color 0.25s ease;
   }
-  .ft-item:hover {
-    transform: translateY(-3px);
-    border-color: rgba(51, 92, 134, 0.3);
-  }
-  .ft-num {
-    font-family: var(--latin-serif); font-style: italic;
-    font-size: 16px; color: var(--amber); margin-bottom: 8px;
-  }
-  .ft-item b {
-    display: block; font-family: var(--serif); font-size: 17px; font-weight: 600;
-    color: var(--ink); margin-bottom: 8px; letter-spacing: 0.04em;
-  }
-  .ft-item p { font-size: 14.2px; color: var(--ink-soft); line-height: 1.8; }
+  .ft-item:hover { transform: translateY(-2px); border-color: rgba(51, 92, 134, 0.3); }
+  .ft-num { font-family: var(--latin-serif); font-style: italic; font-size: 14.5px; color: var(--amber); margin-bottom: 4px; }
+  .ft-item b { display: block; font-family: var(--serif); font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+  .ft-item p { font-size: 13.8px; color: var(--ink-soft); line-height: 1.75; }
+
   code {
-    font-family: var(--mono); font-size: 0.85em;
-    background: rgba(51, 92, 134, 0.08);
-    color: var(--indigo);
+    font-family: var(--mono); font-size: 0.84em;
+    background: rgba(51, 92, 134, 0.08); color: var(--indigo);
     padding: 1px 6px; border-radius: 4px;
   }
 
-  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 20px; }
   .tag {
-    font-family: var(--mono); font-size: 12px;
-    color: var(--ink-soft);
-    background: rgba(28, 34, 45, 0.04);
-    border: 1px solid var(--line);
-    padding: 4px 12px; border-radius: 999px;
-    transition: border-color 0.25s ease, color 0.25s ease;
+    font-family: var(--mono); font-size: 11.5px; color: var(--ink-soft);
+    background: rgba(28, 34, 45, 0.04); border: 1px solid var(--line);
+    padding: 3px 11px; border-radius: 999px;
   }
-  .tag:hover { border-color: var(--indigo); color: var(--indigo); }
 
-  /* ---------- 05 项目足迹 ---------- */
-  .project-list { display: grid; gap: 0; }
-  .proj-row {
-    display: grid;
-    grid-template-columns: 230px 1fr;
-    gap: 44px;
-    padding: 40px 0;
-    border-bottom: 1px solid var(--line);
-    transition: background 0.3s ease;
+  .projects-cards {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
   }
-  .proj-row:first-child { padding-top: 6px; }
-  .proj-row:last-child { border-bottom: 0; padding-bottom: 6px; }
-  .proj-date {
-    font-family: var(--mono); font-size: 13px; color: var(--indigo);
-    letter-spacing: 0.06em; padding-top: 6px;
+  .proj-card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 18px; padding: 26px 24px;
+    display: flex; flex-direction: column;
+    transition: transform 0.35s var(--ease), border-color 0.3s ease, box-shadow 0.35s var(--ease);
   }
-  .proj-idx {
-    font-family: var(--latin-serif); font-style: italic;
-    font-size: 15px; color: var(--amber); margin-bottom: 6px;
+  .proj-card:hover {
+    transform: translateY(-4px); border-color: rgba(51, 92, 134, 0.3);
+    box-shadow: 0 16px 36px rgba(28, 34, 45, 0.06);
   }
-  .proj-body h3 {
-    font-family: var(--serif); font-size: 22px; font-weight: 600;
-    letter-spacing: 0.06em; color: var(--ink); margin-bottom: 12px;
+  .proj-card-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+  .proj-idx { font-family: var(--latin-serif); font-style: italic; font-size: 15px; color: var(--amber); }
+  .proj-date { font-family: var(--mono); font-size: 11.5px; color: var(--ink-muted); }
+  .proj-card h3 {
+    font-family: var(--serif); font-size: 18.5px; font-weight: 600;
+    letter-spacing: 0.05em; margin-bottom: 10px;
   }
-  .proj-body p {
-    color: var(--ink-soft); font-size: 15.2px; line-height: 1.9; max-width: 720px;
-  }
-  .proj-body .tags { margin-top: 18px; }
+  .proj-card p { color: var(--ink-soft); font-size: 14px; line-height: 1.8; flex: 1; }
+  .proj-card .tags { margin-top: 16px; }
 
-  /* ---------- 06 作品画廊 ---------- */
-  .video-gallery {
-    max-width: 900px; margin: 0 auto 48px;
+  /* =========================================================
+     卷四 · 作品画廊（演示视频 + 实物图）
+     ========================================================= */
+  .works-layout {
+    display: grid; grid-template-columns: 1.28fr 0.92fr;
+    gap: 28px; align-items: start;
+  }
+  .video-card {
+    background: var(--surface-solid); border: 1px solid var(--line);
+    border-radius: 20px; padding: 14px 14px 18px;
+    box-shadow: 0 18px 46px rgba(28, 34, 45, 0.06);
   }
   .video-frame {
     position: relative; width: 100%; aspect-ratio: 16 / 9;
-    border-radius: 18px; overflow: hidden;
-    background: #161A22;
-    border: 1px solid var(--line);
-    box-shadow: 0 24px 56px rgba(28, 34, 45, 0.11);
+    border-radius: 13px; overflow: hidden; background: #161A22;
   }
   .video-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
   .video-caption {
-    margin-top: 16px;
+    margin-top: 14px; padding: 0 6px;
     display: flex; justify-content: space-between; align-items: center;
-    flex-wrap: wrap; gap: 10px;
-    font-size: 14px; color: var(--ink-muted);
+    flex-wrap: wrap; gap: 10px; font-size: 13.8px; color: var(--ink-muted);
   }
-  .video-caption strong { color: var(--ink); font-weight: 500; font-family: var(--serif); letter-spacing: 0.06em; }
+  .video-caption strong {
+    color: var(--ink); font-family: var(--serif); font-size: 16px;
+    font-weight: 600; letter-spacing: 0.05em;
+  }
   .video-caption a { color: var(--indigo); border-bottom: 1px solid rgba(51, 92, 134, 0.3); }
   .video-caption a:hover { border-bottom-color: var(--indigo); }
 
-  .works-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
-  }
+  .works-side { display: grid; gap: 22px; }
   .work-card {
-    background: var(--surface-solid);
-    border: 1px solid var(--line);
-    border-radius: 18px;
-    padding: 14px 14px 20px;
+    background: var(--surface-solid); border: 1px solid var(--line);
+    border-radius: 18px; padding: 12px 12px 16px;
     cursor: zoom-in;
-    transition: transform 0.45s var(--ease), box-shadow 0.45s var(--ease), border-color 0.35s ease;
+    transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease), border-color 0.3s ease;
   }
   .work-card:hover {
-    transform: translateY(-6px);
-    border-color: rgba(51, 92, 134, 0.3);
-    box-shadow: 0 22px 46px rgba(28, 34, 45, 0.08);
+    transform: translateY(-4px); border-color: rgba(51, 92, 134, 0.32);
+    box-shadow: 0 18px 40px rgba(28, 34, 45, 0.08);
   }
   .work-img-wrap {
-    border-radius: 12px; overflow: hidden; aspect-ratio: 16 / 10;
-    background: #EAE5DC; position: relative;
+    border-radius: 11px; overflow: hidden; aspect-ratio: 16 / 9; background: #EAE5DC;
   }
   .work-img-wrap img {
     width: 100%; height: 100%; object-fit: cover;
-    transition: transform 0.7s var(--ease);
+    transition: transform 0.65s var(--ease);
   }
   .work-card:hover .work-img-wrap img { transform: scale(1.04); }
-  .work-cap { padding: 18px 8px 0; }
-  .work-cap .w-title {
-    font-family: var(--serif); font-size: 18px; font-weight: 600;
-    color: var(--ink); letter-spacing: 0.05em;
-  }
-  .work-cap .w-sub {
-    margin-top: 5px; font-size: 13.8px; color: var(--ink-muted);
-  }
+  .work-cap { padding: 12px 6px 0; display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .work-cap .w-title { font-family: var(--serif); font-size: 16.5px; font-weight: 600; color: var(--ink); }
+  .work-cap .w-zoom { font-size: 12px; color: var(--ink-muted); white-space: nowrap; }
+  .work-sub { padding: 4px 6px 0; font-size: 13px; color: var(--ink-muted); }
 
-  /* ---------- 07 荣誉长卷 ---------- */
+  /* =========================================================
+     卷五 · 荣誉与联系（证书长卷 + 联系方式）
+     ========================================================= */
   .awards-tools {
     display: flex; align-items: center; justify-content: space-between;
-    gap: 16px; flex-wrap: wrap; margin-bottom: 30px;
+    gap: 14px; flex-wrap: wrap; margin-bottom: 22px;
   }
   .filter-pills { display: flex; flex-wrap: wrap; gap: 8px; }
   .pill-btn {
-    background: transparent;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    padding: 6px 16px;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 999px; padding: 6px 15px;
     font-size: 13px; color: var(--ink-soft); letter-spacing: 0.06em;
-    cursor: pointer;
-    transition: all 0.25s ease;
+    cursor: pointer; transition: all 0.25s ease;
   }
   .pill-btn:hover { border-color: var(--indigo); color: var(--indigo); }
-  .pill-btn.active {
-    background: var(--ink); color: #F9F7F2; border-color: var(--ink);
-  }
+  .pill-btn.active { background: var(--ink); color: #F9F7F2; border-color: var(--ink); }
   .mode-btn {
     background: none; border: 0; border-bottom: 1px solid var(--line-strong);
     padding: 4px 2px; font-size: 13px; color: var(--ink-soft);
@@ -846,126 +720,90 @@
   .mode-btn:hover { color: var(--indigo); border-bottom-color: var(--indigo); }
 
   .marquee {
-    position: relative; width: 100%; overflow: hidden;
-    padding: 12px 0 18px;
-    -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
-            mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+    position: relative; width: 100%; overflow: hidden; padding: 8px 0 14px;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+            mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
   }
-  .marquee-track {
-    display: flex; gap: 24px; width: max-content;
-    animation: scroll-x 52s linear infinite;
-  }
+  .marquee-track { display: flex; gap: 20px; width: max-content; animation: scroll-x 50s linear infinite; }
   .marquee:hover .marquee-track { animation-play-state: paused; }
   @keyframes scroll-x { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
-  /* 展开画廊模式 */
   .marquee.expanded {
-    overflow: visible;
-    -webkit-mask-image: none; mask-image: none;
+    overflow: visible; -webkit-mask-image: none; mask-image: none;
   }
   .marquee.expanded .marquee-track {
     animation: none; width: 100%;
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px;
   }
   .marquee.expanded .cert { width: auto; }
 
   .cert {
-    flex: 0 0 auto; width: 312px;
-    background: var(--surface-solid);
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    padding: 12px 12px 16px;
-    cursor: zoom-in;
-    box-shadow: 0 10px 28px rgba(28, 34, 45, 0.045);
-    transition: transform 0.4s var(--ease), border-color 0.3s ease, box-shadow 0.4s var(--ease);
+    flex: 0 0 auto; width: 292px;
+    background: var(--surface-solid); border: 1px solid var(--line);
+    border-radius: 15px; padding: 10px 10px 14px; cursor: zoom-in;
+    box-shadow: 0 8px 24px rgba(28, 34, 45, 0.045);
+    transition: transform 0.35s var(--ease), border-color 0.3s ease, box-shadow 0.35s var(--ease);
   }
   .cert:hover {
-    transform: translateY(-6px);
-    border-color: rgba(51, 92, 134, 0.32);
-    box-shadow: 0 20px 42px rgba(28, 34, 45, 0.09);
+    transform: translateY(-5px); border-color: rgba(51, 92, 134, 0.32);
+    box-shadow: 0 18px 36px rgba(28, 34, 45, 0.09);
   }
   .cert .pic {
-    width: 100%; height: 204px; border-radius: 10px;
-    object-fit: cover; object-position: center;
-    background: #F4F1EA;
+    width: 100%; height: 186px; border-radius: 9px;
+    object-fit: cover; background: #F4F1EA;
     border: 1px solid rgba(28, 34, 45, 0.06);
   }
-  .cert .meta { padding: 14px 6px 2px; }
-  .cert .name {
-    font-size: 13.8px; font-weight: 500; color: var(--ink);
-    line-height: 1.55; min-height: 43px;
-  }
+  .cert .meta { padding: 12px 5px 0; }
+  .cert .name { font-size: 13.4px; font-weight: 500; color: var(--ink); line-height: 1.5; min-height: 40px; }
   .cert .foot {
     display: flex; align-items: center; justify-content: space-between;
-    margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line);
+    margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line);
   }
-  .cert-lvl {
-    font-size: 11.5px; letter-spacing: 0.06em;
-    padding: 3px 10px; border-radius: 999px;
-  }
+  .cert-lvl { font-size: 11px; letter-spacing: 0.06em; padding: 2px 9px; border-radius: 999px; }
   .cert-lvl.national { background: var(--indigo-soft); color: var(--indigo); }
   .cert-lvl.province { background: var(--sage-soft); color: var(--sage); }
   .cert-lvl.school { background: var(--amber-soft); color: var(--amber); }
-  .cert-open { font-size: 12px; color: var(--ink-muted); }
+  .cert-open { font-size: 11.5px; color: var(--ink-muted); }
 
   .hint-note {
     text-align: center; color: var(--ink-muted);
-    font-size: 13px; letter-spacing: 0.08em; margin-top: 22px;
+    font-size: 12.8px; letter-spacing: 0.08em; margin-top: 14px;
   }
 
-  /* ---------- 08 致意与联系 ---------- */
-  .contact-band {
-    text-align: center;
-    padding: 112px 0 96px;
+  .contact-box {
+    margin-top: 44px;
+    background: var(--surface-solid);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    padding: 40px 36px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 28px; flex-wrap: wrap;
+    box-shadow: 0 14px 40px rgba(28, 34, 45, 0.045);
   }
   .contact-eyebrow {
     font-family: var(--latin-serif); font-style: italic;
-    font-size: 17px; color: var(--amber); letter-spacing: 0.12em;
+    font-size: 15.5px; color: var(--amber); letter-spacing: 0.1em;
   }
-  .contact-band h2 {
-    font-family: var(--serif);
-    font-size: clamp(28px, 4.2vw, 44px);
-    font-weight: 600; letter-spacing: 0.1em;
-    margin-top: 12px; color: var(--ink);
+  .contact-box h2 {
+    font-family: var(--serif); font-size: clamp(22px, 3vw, 30px);
+    font-weight: 600; letter-spacing: 0.08em; margin-top: 6px;
   }
-  .contact-sub {
-    margin: 18px auto 0; max-width: 520px;
-    color: var(--ink-soft); font-size: 15.6px;
-  }
-  .contact-links {
-    margin-top: 40px;
-    display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;
-  }
+  .contact-box p { color: var(--ink-soft); font-size: 14.8px; margin-top: 8px; max-width: 480px; }
+  .contact-links { display: flex; gap: 12px; flex-wrap: wrap; }
   .contact-pill {
-    display: inline-flex; align-items: center; gap: 10px;
-    padding: 13px 28px; border-radius: 999px;
-    background: var(--surface-solid);
-    border: 1px solid var(--line-strong);
-    font-size: 14.5px; letter-spacing: 0.06em; color: var(--ink);
-    transition: transform 0.35s var(--ease), border-color 0.25s ease, color 0.25s ease, box-shadow 0.35s ease;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 24px; border-radius: 999px;
+    background: var(--bg); border: 1px solid var(--line-strong);
+    font-size: 14px; letter-spacing: 0.06em; color: var(--ink);
+    transition: transform 0.3s var(--ease), border-color 0.25s ease, color 0.25s ease;
   }
-  .contact-pill:hover {
-    transform: translateY(-3px);
-    border-color: var(--indigo);
-    color: var(--indigo);
-    box-shadow: 0 12px 28px rgba(51, 92, 134, 0.10);
-  }
-  .contact-pill.primary {
-    background: var(--ink); color: #F9F7F2; border-color: var(--ink);
-  }
-  .contact-pill.primary:hover {
-    background: var(--indigo); border-color: var(--indigo); color: #F9F7F2;
-  }
+  .contact-pill:hover { transform: translateY(-2px); border-color: var(--indigo); color: var(--indigo); }
+  .contact-pill.primary { background: var(--ink); color: #F9F7F2; border-color: var(--ink); }
+  .contact-pill.primary:hover { background: var(--indigo); border-color: var(--indigo); color: #F9F7F2; }
 
-  footer {
-    border-top: 1px solid var(--line);
-    padding: 34px 0 42px;
-    text-align: center;
-    font-size: 13px; color: var(--ink-muted); letter-spacing: 0.1em;
-  }
-  footer .motto {
-    font-family: var(--latin-serif); font-style: italic;
-    font-size: 15px; color: var(--ink-soft); margin-bottom: 6px;
+  .mini-colophon {
+    text-align: center; padding: 22px 0 8px;
+    font-size: 12.5px; color: var(--ink-muted); letter-spacing: 0.1em;
   }
 
   /* ---------- 灯箱 ---------- */
@@ -973,10 +811,8 @@
     position: fixed; inset: 0; z-index: 120;
     display: flex; align-items: center; justify-content: center;
     background: rgba(24, 28, 36, 0.88);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    padding: 32px;
-    opacity: 0; pointer-events: none;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    padding: 32px; opacity: 0; pointer-events: none;
     transition: opacity 0.3s ease;
   }
   .lightbox.open { opacity: 1; pointer-events: auto; }
@@ -992,8 +828,7 @@
   }
   .lb-close, .lb-nav {
     position: absolute; border: 1px solid rgba(255, 255, 255, 0.22);
-    background: rgba(255, 255, 255, 0.08);
-    color: #F9F7F2; cursor: pointer;
+    background: rgba(255, 255, 255, 0.08); color: #F9F7F2; cursor: pointer;
     width: 46px; height: 46px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-size: 24px; line-height: 1;
@@ -1007,314 +842,310 @@
   .lb-next { right: 24px; }
   .lb-nav.hidden { display: none; }
 
-  /* ---------- 柔和进场动画 ---------- */
-  .reveal {
-    opacity: 0; transform: translateY(22px); filter: blur(3px);
-    transition: opacity 0.85s var(--ease), transform 0.85s var(--ease), filter 0.85s var(--ease);
-  }
-  .reveal.show { opacity: 1; transform: none; filter: blur(0); }
-
-  /* ---------- 响应式适配 ---------- */
+  /* ---------- 响应式 ---------- */
   @media (max-width: 980px) {
-    .hero-grid { grid-template-columns: 1fr; text-align: center; gap: 46px; }
-    .portrait-stage { order: -1; padding: 12px 0; }
+    .hero-grid { grid-template-columns: 1fr; text-align: center; gap: 36px; }
+    .portrait-stage { order: -1; }
     .hero-eyebrow, .hero-title-row, .poetic-role, .hero-meta, .hero-actions { justify-content: center; }
     .hero-desc { margin-left: auto; margin-right: auto; }
     .vertical-note { display: none; }
-    .about-layout { grid-template-columns: 1fr; gap: 36px; }
+    .home-footer-band { grid-template-columns: repeat(2, 1fr); }
+    .about-layout { grid-template-columns: 1fr; gap: 28px; }
     .skills-grid { grid-template-columns: repeat(2, 1fr); }
-    .exp-spread, .proj-row { grid-template-columns: 1fr; gap: 18px; }
-    .exp-aside { position: static; }
+    .exp-list { grid-template-columns: 1fr; }
     .ft-grid { grid-template-columns: 1fr; }
-    .works-grid { grid-template-columns: 1fr; }
+    .projects-cards { grid-template-columns: 1fr; }
+    .works-layout { grid-template-columns: 1fr; }
   }
   @media (max-width: 760px) {
-    .wrap { padding: 0 22px; }
-    section { padding: 76px 0; }
-    header.hero { padding: 48px 0 64px; }
+    .wrap { padding: 0 20px; }
+    .page-inner { padding: 34px 0 28px; }
     .nav-links {
-      display: none; position: absolute; top: 74px; left: 0; right: 0;
-      flex-direction: column; align-items: stretch; gap: 0;
+      display: none; position: absolute; top: var(--nav-h); left: 0; right: 0;
+      flex-direction: column; align-items: stretch; gap: 4px;
       background: rgba(249, 247, 242, 0.97);
       border-bottom: 1px solid var(--line);
-      padding: 8px 22px 18px;
+      padding: 12px 20px 18px;
     }
     .nav-links.open { display: flex; }
-    .nav-links a { padding: 12px 4px; border-bottom: 1px solid var(--line); }
-    .nav-links a:last-child { border-bottom: 0; }
-    .nav-links a::after { display: none; }
+    .nav-tab { padding: 11px 14px; border-radius: 12px; }
     .menu-btn { display: inline-flex; }
-    .metrics-grid { grid-template-columns: repeat(2, 1fr); }
-    .metric:nth-child(2)::after { display: none; }
-    .metric:nth-child(1), .metric:nth-child(2) { border-bottom: 1px solid var(--line); }
-    .skills-grid { grid-template-columns: 1fr; }
-    .spectrum-wrap { grid-template-columns: 1fr; gap: 24px; }
-    .exp-main, .featured-plate { padding: 28px 24px; }
+    .brand-en, .folio-counter { display: none; }
+    .home-stage { min-height: auto; padding: 28px 0 24px; }
+    .skills-grid, .spectrum-wrap { grid-template-columns: 1fr; }
+    .exp-card, .featured-plate, .contact-box { padding: 24px 20px; }
+    .exp-right { text-align: left; }
     .portrait-caption { left: 50%; transform: translateX(-50%); bottom: -4px; white-space: nowrap; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .portrait-wrap, .orbit-svg, .portrait-aura, .marquee-track { animation: none !important; }
-    .reveal { opacity: 1; transform: none; filter: none; }
+    .portrait-wrap, .orbit-svg, .portrait-aura, .marquee-track, .page { animation: none !important; }
   }
 </style>
 </head>
-<body>
+<body data-page="home">
 <div class="ambient-wash" aria-hidden="true"></div>
+<canvas id="flowCanvas" aria-hidden="true"></canvas>
 <div class="paper-grain" aria-hidden="true"></div>
-<div class="scroll-line" id="scrollLine" aria-hidden="true"></div>
 
-<nav id="topNav">
+<nav>
   <div class="wrap">
-    <a href="#" class="brand" aria-label="回到顶部">
+    <a href="#home" class="brand" data-go="home" aria-label="返回首页">
       <img src="wyz.jpg" alt="吴杨智" class="brand-mini">
       <span class="brand-name">吴杨智</span>
       <span class="brand-en">Wu Yangzhi</span>
     </a>
-    <div class="nav-links" id="navLinks">
-      <a href="#about">关于</a>
-      <a href="#skills">技艺</a>
-      <a href="#experience">实习</a>
-      <a href="#featured">重点</a>
-      <a href="#projects">项目</a>
-      <a href="#works">作品</a>
-      <a href="#awards">荣誉</a>
-      <a href="#contact">联系</a>
+
+    <div class="nav-links" id="navLinks" role="tablist" aria-label="页面导航">
+      <a href="#home" class="nav-tab active" data-go="home"><span class="tab-num">01</span>首页</a>
+      <a href="#about" class="nav-tab" data-go="about"><span class="tab-num">02</span>关于</a>
+      <a href="#projects" class="nav-tab" data-go="projects"><span class="tab-num">03</span>项目</a>
+      <a href="#works" class="nav-tab" data-go="works"><span class="tab-num">04</span>作品</a>
+      <a href="#honors" class="nav-tab" data-go="honors"><span class="tab-num">05</span>荣誉</a>
     </div>
-    <button class="menu-btn" id="menuBtn" aria-label="打开导航菜单">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-        <line x1="4" y1="7" x2="20" y2="7"></line>
-        <line x1="4" y1="12" x2="20" y2="12"></line>
-        <line x1="4" y1="17" x2="14" y2="17"></line>
-      </svg>
-    </button>
+
+    <div class="nav-right">
+      <div class="folio-counter" id="folioCounter"><strong>01</strong> / 05</div>
+      <button class="menu-btn" id="menuBtn" aria-label="打开导航菜单">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <line x1="4" y1="7" x2="20" y2="7"></line>
+          <line x1="4" y1="12" x2="20" y2="12"></line>
+          <line x1="4" y1="17" x2="14" y2="17"></line>
+        </svg>
+      </button>
+    </div>
   </div>
 </nav>
 
-<header class="hero">
-  <canvas id="flowCanvas" aria-hidden="true"></canvas>
-  <div class="wrap">
-    <div class="hero-grid">
-      <div class="hero-copy">
-        <div class="hero-eyebrow"><span class="dot"></span>ROBOTICS · SLAM · AUTONOMOUS NAVIGATION</div>
-        <div class="hero-title-row">
-          <h1>吴杨智</h1>
-          <span class="seal" title="笃行致远">智</span>
-        </div>
-        <div class="hero-latin">Wu Yangzhi</div>
-
-        <div class="poetic-role" aria-live="polite">
-          <span class="poetic-text" id="poeticText">机器人与 ROS 自主导航开发者</span>
-        </div>
-
-        <p class="hero-desc">
-          电子信息工程专业，专注于 SLAM 建图、路径规划与多机器人协同。热爱在秩序与自由之间，把纸面上的算法落地到真实的机器人系统里。
-        </p>
-
-        <div class="hero-meta">
-          <span>陕西 · 汉中</span>
-          <span class="sep">/</span>
-          <span>电子信息工程</span>
-          <span class="sep">/</span>
-          <span>ROS &amp; ROS2</span>
-          <span class="sep">/</span>
-          <span>SLAM &amp; 自主导航</span>
-        </div>
-
-        <div class="hero-actions">
-          <a href="#featured" class="btn-ink">
-            <span>浏览项目与履历</span>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-          </a>
-          <a href="https://github.com/wyz0603" target="_blank" rel="noopener" class="link-arrow">GitHub <span class="arr">↗</span></a>
-          <a href="#contact" class="link-arrow">与我联系 <span class="arr">↗</span></a>
-        </div>
-      </div>
-
-      <div class="portrait-stage">
-        <div class="portrait-aura" aria-hidden="true"></div>
-        <div class="portrait-wrap" id="avatarTrigger" role="button" tabindex="0" aria-label="点击查看完整个人插画">
-          <svg class="orbit-svg" viewBox="0 0 400 400" fill="none" aria-hidden="true">
-            <ellipse cx="200" cy="200" rx="188" ry="178" stroke="rgba(51,92,134,0.22)" stroke-width="1" stroke-dasharray="3 7"/>
-            <path d="M 38 145 A 174 174 0 0 1 255 34" stroke="rgba(196,117,75,0.52)" stroke-width="1.2" stroke-linecap="round"/>
-            <circle cx="255" cy="34" r="3.5" fill="#C4754B"/>
-            <circle cx="52" cy="296" r="2.5" fill="#335C86" opacity="0.65"/>
-          </svg>
-          <div class="portrait-frame">
-            <div class="portrait-img-box">
-              <img src="wyz.jpg" alt="吴杨智个人插画头像">
-              <span class="portrait-hint">查看完整插画</span>
-            </div>
+<main>
+  <!-- ==================== 第 1 页：首页封面 ==================== -->
+  <section class="page active" id="page-home" data-page-id="home">
+    <div class="wrap home-stage">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="hero-eyebrow"><span class="dot"></span>ROBOTICS · SLAM · AUTONOMOUS NAVIGATION</div>
+          <div class="hero-title-row">
+            <h1>吴杨智</h1>
+            <span class="seal" title="笃行致远">智</span>
           </div>
-          <div class="portrait-caption"><span>✦</span>Keep Going · 看更大的世界</div>
+          <div class="hero-latin">Wu Yangzhi</div>
+
+          <div class="poetic-role" aria-live="polite">
+            <span class="poetic-text" id="poeticText">机器人与 ROS 自主导航开发者</span>
+          </div>
+
+          <p class="hero-desc">
+            电子信息工程专业，专注于 SLAM 建图、路径规划与多机器人协同。热爱在秩序与自由之间，把纸面上的算法落地到真实的机器人系统里。
+          </p>
+
+          <div class="hero-meta">
+            <span>陕西 · 汉中</span>
+            <span class="sep">/</span>
+            <span>电子信息工程</span>
+            <span class="sep">/</span>
+            <span>ROS &amp; ROS2</span>
+            <span class="sep">/</span>
+            <span>乐聚机器人软件部实习</span>
+          </div>
+
+          <div class="hero-actions">
+            <a href="#about" data-go="about" class="btn-ink">
+              <span>翻阅个人志</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+            <a href="https://github.com/wyz0603" target="_blank" rel="noopener" class="link-arrow">GitHub <span class="arr">↗</span></a>
+            <a href="#honors" data-go="honors" class="link-arrow">荣誉与联系 <span class="arr">↗</span></a>
+          </div>
         </div>
-        <div class="vertical-note" aria-hidden="true">不忘初心 · 持续进步</div>
+
+        <div class="portrait-stage">
+          <div class="portrait-aura" aria-hidden="true"></div>
+          <div class="portrait-wrap" id="avatarTrigger" role="button" tabindex="0" aria-label="点击查看完整个人插画">
+            <svg class="orbit-svg" viewBox="0 0 400 400" fill="none" aria-hidden="true">
+              <ellipse cx="200" cy="200" rx="188" ry="178" stroke="rgba(51,92,134,0.22)" stroke-width="1" stroke-dasharray="3 7"/>
+              <path d="M 38 145 A 174 174 0 0 1 255 34" stroke="rgba(196,117,75,0.52)" stroke-width="1.2" stroke-linecap="round"/>
+              <circle cx="255" cy="34" r="3.5" fill="#C4754B"/>
+              <circle cx="52" cy="296" r="2.5" fill="#335C86" opacity="0.65"/>
+            </svg>
+            <div class="portrait-frame">
+              <div class="portrait-img-box">
+                <img src="wyz.jpg" alt="吴杨智个人插画头像">
+                <span class="portrait-hint">查看完整插画</span>
+              </div>
+            </div>
+            <div class="portrait-caption"><span>✦</span>Keep Going · 看更大的世界</div>
+          </div>
+          <div class="vertical-note" aria-hidden="true">不忘初心 · 持续进步</div>
+        </div>
+      </div>
+
+      <div class="home-footer-band" id="statsBand">
+        <a href="#about" data-go="about" class="home-card-link">
+          <div class="hcl-top">
+            <div class="hcl-num" data-to="1" data-suf="段">01<span class="suf">段</span></div>
+            <span class="hcl-arr">↗</span>
+          </div>
+          <div class="hcl-title">关于 · 技艺与实习</div>
+          <div class="hcl-sub">乐聚机器人「夸父 KUAVO」软件部</div>
+        </a>
+
+        <a href="#projects" data-go="projects" class="home-card-link">
+          <div class="hcl-top">
+            <div class="hcl-num" data-to="4" data-suf="个">04<span class="suf">个</span></div>
+            <span class="hcl-arr">↗</span>
+          </div>
+          <div class="hcl-title">核心工程项目</div>
+          <div class="hcl-sub">MID360 导航 · 无人机 · 多机围捕</div>
+        </a>
+
+        <a href="#works" data-go="works" class="home-card-link">
+          <div class="hcl-top">
+            <div class="hcl-num" data-to="6" data-suf="项">06<span class="suf">项</span></div>
+            <span class="hcl-arr">↗</span>
+          </div>
+          <div class="hcl-title">作品画廊与演示</div>
+          <div class="hcl-sub">国家级奖项 · 实机视频与样机图集</div>
+        </a>
+
+        <a href="#honors" data-go="honors" class="home-card-link">
+          <div class="hcl-top">
+            <div class="hcl-num" data-to="13" data-suf="张">13<span class="suf">张</span></div>
+            <span class="hcl-arr">↗</span>
+          </div>
+          <div class="hcl-title">荣誉长卷与联系</div>
+          <div class="hcl-sub">国奖 / 省奖 / 校赛真实证书与致意</div>
+        </a>
       </div>
     </div>
-  </div>
-</header>
+  </section>
 
-<div class="metrics-strip" id="statsBand">
-  <div class="wrap">
-    <div class="metrics-grid">
-      <div class="metric reveal">
-        <div class="metric-num" data-to="6" data-suf="项">0</div>
-        <div class="metric-lbl">国家级奖项</div>
-      </div>
-      <div class="metric reveal">
-        <div class="metric-num" data-to="13" data-suf="张">0</div>
-        <div class="metric-lbl">获奖证书</div>
-      </div>
-      <div class="metric reveal">
-        <div class="metric-num" data-to="4" data-suf="个">0</div>
-        <div class="metric-lbl">核心工程项目</div>
-      </div>
-      <div class="metric reveal">
-        <div class="metric-num" data-to="1" data-suf="段">0</div>
-        <div class="metric-lbl">人形机器人实习</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<section id="about">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <div class="sec-title-group">
-        <span class="sec-index">01</span>
-        <h2>关于我</h2>
-      </div>
-      <span class="sec-en">About Me</span>
-    </div>
-
-    <div class="about-layout">
-      <div class="about-prose reveal">
-        <blockquote class="pull-quote">
-          在代码与机械之间，让机器人学会感知世界、规划路径并自由行走。
-        </blockquote>
-        <p>我是吴杨智，电子信息学院电子信息工程专业的学生。大学期间，我专注于机器人操作系统（ROS / ROS2）的研究与应用，积累了扎实的工程与赛事实践经验。</p>
-        <p>我擅长 SLAM 建图、路径规划与多传感器融合，能够独立完成从底盘搭建、传感器集成到导航算法实现的全流程开发。曾在<strong>乐聚机器人</strong>软件部实习，参与人形机器人「夸父 KUAVO」上位机 Linux 应用的开发与维护，热衷于将算法落地到真实的机器人平台。</p>
-        <p>在多项国家级机器人赛事中获奖，享受用代码与硬件把抽象构想一点点变为现实的过程。</p>
+  <!-- ==================== 第 2 页：关于 · 技艺 · 实习 ==================== -->
+  <section class="page" id="page-about" data-page-id="about">
+    <div class="wrap page-inner">
+      <div class="page-head">
+        <div class="page-head-left">
+          <span class="page-num">02</span>
+          <h1>关于与技艺</h1>
+        </div>
+        <span class="page-en">About · Skills · Experience</span>
       </div>
 
-      <aside class="folio-card reveal">
-        <div class="folio-head">Personal Index</div>
-        <div class="info-row"><span class="k">姓名</span><span class="v">吴杨智</span></div>
-        <div class="info-row"><span class="k">出生</span><span class="v">2003 年 6 月</span></div>
-        <div class="info-row"><span class="k">籍贯</span><span class="v">陕西 · 汉中</span></div>
-        <div class="info-row"><span class="k">专业</span><span class="v">电子信息工程</span></div>
-        <div class="info-row"><span class="k">方向</span><span class="v">机器人 / 自主导航</span></div>
-        <div class="info-row"><span class="k">GitHub</span><a class="v" href="https://github.com/wyz0603" target="_blank" rel="noopener">wyz0603 ↗</a></div>
-      </aside>
-    </div>
-  </div>
-</section>
+      <div class="about-layout">
+        <div class="about-prose">
+          <blockquote class="pull-quote">
+            在代码与机械之间，让机器人学会感知世界、规划路径并自由行走。
+          </blockquote>
+          <p>我是吴杨智，电子信息学院电子信息工程专业的学生。大学期间，我专注于机器人操作系统（ROS / ROS2）的研究与应用，积累了扎实的工程与赛事实践经验。</p>
+          <p>我擅长 SLAM 建图、路径规划与多传感器融合，能够独立完成从底盘搭建、传感器集成到导航算法实现的全流程开发。曾在<strong>乐聚机器人</strong>软件部实习，参与人形机器人「夸父 KUAVO」上位机 Linux 应用的开发与维护，热衷于将算法落地到真实的机器人平台。</p>
+          <p>在多项国家级机器人赛事中获奖，享受用代码与硬件把抽象构想一点点变为现实的过程。</p>
+        </div>
 
-<section id="skills" class="tinted">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <div class="sec-title-group">
-        <span class="sec-index">02</span>
+        <aside class="folio-card">
+          <div class="folio-head">Personal Index</div>
+          <div class="info-row"><span class="k">姓名</span><span class="v">吴杨智</span></div>
+          <div class="info-row"><span class="k">出生</span><span class="v">2003 年 6 月</span></div>
+          <div class="info-row"><span class="k">籍贯</span><span class="v">陕西 · 汉中</span></div>
+          <div class="info-row"><span class="k">专业</span><span class="v">电子信息工程</span></div>
+          <div class="info-row"><span class="k">方向</span><span class="v">机器人 / 自主导航</span></div>
+          <div class="info-row"><span class="k">GitHub</span><a class="v" href="https://github.com/wyz0603" target="_blank" rel="noopener">wyz0603 ↗</a></div>
+        </aside>
+      </div>
+
+      <div class="sub-head">
         <h2>专业技艺</h2>
+        <span>Capabilities &amp; Craft</span>
       </div>
-      <span class="sec-en">Capabilities &amp; Craft</span>
-    </div>
 
-    <div class="skills-grid">
-      <div class="skill-card reveal">
-        <div class="skill-top">
-          <span class="skill-roman">I.</span>
-          <span class="skill-ico" aria-hidden="true">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
-          </span>
+      <div class="skills-grid">
+        <div class="skill-card">
+          <div class="skill-top">
+            <span class="skill-roman">I.</span>
+            <span class="skill-ico" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+            </span>
+          </div>
+          <h3>SLAM 建图</h3>
+          <ul>
+            <li>GMapping</li>
+            <li>Hector SLAM</li>
+            <li>Cartographer</li>
+            <li>同步定位与地图构建</li>
+          </ul>
         </div>
-        <h3>SLAM 建图</h3>
-        <ul>
-          <li>GMapping</li>
-          <li>Hector SLAM</li>
-          <li>Cartographer</li>
-          <li>同步定位与地图构建</li>
-        </ul>
-      </div>
 
-      <div class="skill-card reveal">
-        <div class="skill-top">
-          <span class="skill-roman">II.</span>
-          <span class="skill-ico" aria-hidden="true">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
-          </span>
+        <div class="skill-card">
+          <div class="skill-top">
+            <span class="skill-roman">II.</span>
+            <span class="skill-ico" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+            </span>
+          </div>
+          <h3>路径规划</h3>
+          <ul>
+            <li>A* 全局规划</li>
+            <li>DWA / TEB 局部规划</li>
+            <li>自研局部路径规划算法</li>
+            <li>激光雷达动态避障</li>
+          </ul>
         </div>
-        <h3>路径规划</h3>
-        <ul>
-          <li>A* 全局规划</li>
-          <li>DWA / TEB 局部规划</li>
-          <li>自研局部路径规划算法</li>
-          <li>激光雷达动态避障</li>
-        </ul>
-      </div>
 
-      <div class="skill-card reveal">
-        <div class="skill-top">
-          <span class="skill-roman">III.</span>
-          <span class="skill-ico" aria-hidden="true">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>
-          </span>
+        <div class="skill-card">
+          <div class="skill-top">
+            <span class="skill-roman">III.</span>
+            <span class="skill-ico" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>
+            </span>
+          </div>
+          <h3>传感器融合</h3>
+          <ul>
+            <li>激光雷达 (LiDAR)</li>
+            <li>IMU 惯性测量</li>
+            <li>编码器里程计</li>
+            <li>高精度定位与稳定性</li>
+          </ul>
         </div>
-        <h3>传感器融合</h3>
-        <ul>
-          <li>激光雷达 (LiDAR)</li>
-          <li>IMU 惯性测量</li>
-          <li>编码器里程计</li>
-          <li>高精度定位与稳定性</li>
-        </ul>
-      </div>
 
-      <div class="skill-card reveal">
-        <div class="skill-top">
-          <span class="skill-roman">IV.</span>
-          <span class="skill-ico" aria-hidden="true">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
-          </span>
+        <div class="skill-card">
+          <div class="skill-top">
+            <span class="skill-roman">IV.</span>
+            <span class="skill-ico" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+            </span>
+          </div>
+          <h3>ROS 开发</h3>
+          <ul>
+            <li>roscpp / rospy</li>
+            <li>Gazebo 仿真测试</li>
+            <li>RViz 实时可视化</li>
+            <li>远程控制 / 自主导航节点</li>
+          </ul>
         </div>
-        <h3>ROS 开发</h3>
-        <ul>
-          <li>roscpp / rospy</li>
-          <li>Gazebo 仿真测试</li>
-          <li>RViz 实时可视化</li>
-          <li>远程控制 / 自主导航节点</li>
-        </ul>
       </div>
-    </div>
 
-    <div class="spectrum-wrap reveal" id="skillBars">
-      <div class="bar-row" data-pct="95"><div class="bar-top"><span>ROS / ROS2</span><span class="pct">95%</span></div><div class="bar-track"><div class="bar-fill"></div></div></div>
-      <div class="bar-row" data-pct="90"><div class="bar-top"><span>路径规划与自主导航</span><span class="pct">90%</span></div><div class="bar-track"><div class="bar-fill"></div></div></div>
-      <div class="bar-row" data-pct="88"><div class="bar-top"><span>SLAM 建图</span><span class="pct">88%</span></div><div class="bar-track"><div class="bar-fill"></div></div></div>
-      <div class="bar-row" data-pct="88"><div class="bar-top"><span>C++ / Python</span><span class="pct">88%</span></div><div class="bar-track"><div class="bar-fill"></div></div></div>
-      <div class="bar-row" data-pct="92"><div class="bar-top"><span>Gazebo / RViz 仿真</span><span class="pct">92%</span></div><div class="bar-track"><div class="bar-fill"></div></div></div>
-      <div class="bar-row" data-pct="85"><div class="bar-top"><span>多传感器融合</span><span class="pct">85%</span></div><div class="bar-track"><div class="bar-fill"></div></div></div>
-    </div>
-  </div>
-</section>
+      <div class="spectrum-wrap" id="skillBars">
+        <div class="bar-row" data-pct="95"><div class="bar-top"><span>ROS / ROS2</span><span class="pct">95%</span></div><div class="bar-track"><div class="bar-fill"></div></div></div>
+        <div class="bar-row" data-pct="90"><div class="bar-top"><span>路径规划与自主导航</span><span class="pct">90%</span></div><div class="bar-track"><div class="bar-fill"></div></div></div>
+        <div class="bar-row" data-pct="88"><div class="bar-top"><span>SLAM 建图</span><span class="pct">88%</span></div><div class="bar-track"><div class="bar-fill"></div></div></div>
+        <div class="bar-row" data-pct="88"><div class="bar-top"><span>C++ / Python</span><span class="pct">88%</span></div><div class="bar-track"><div class="bar-fill"></div></div></div>
+        <div class="bar-row" data-pct="92"><div class="bar-top"><span>Gazebo / RViz 仿真</span><span class="pct">92%</span></div><div class="bar-track"><div class="bar-fill"></div></div></div>
+        <div class="bar-row" data-pct="85"><div class="bar-top"><span>多传感器融合</span><span class="pct">85%</span></div><div class="bar-track"><div class="bar-fill"></div></div></div>
+      </div>
 
-<section id="experience">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <div class="sec-title-group">
-        <span class="sec-index">03</span>
+      <div class="sub-head">
         <h2>实习经历</h2>
-      </div>
-      <span class="sec-en">Experience</span>
-    </div>
-
-    <div class="exp-spread">
-      <div class="exp-aside reveal">
-        <div class="exp-period">2026.01 — 2026.06</div>
-        <div class="exp-badge">人形机器人 · 夸父 KUAVO</div>
+        <span>Industry Experience</span>
       </div>
 
-      <article class="exp-main reveal">
-        <h3>乐聚（深圳）机器人</h3>
-        <div class="exp-role">软件部 · Linux 应用开发工程师（实习）</div>
+      <article class="exp-card">
+        <div class="exp-head">
+          <div>
+            <h3>乐聚（深圳）机器人</h3>
+            <div class="exp-role">软件部 · Linux 应用开发工程师（实习）</div>
+          </div>
+          <div class="exp-right">
+            <div class="exp-period">2026.01 — 2026.06</div>
+            <div class="exp-badge">人形机器人 · 夸父 KUAVO</div>
+          </div>
+        </div>
         <p class="exp-company">乐聚机器人成立于 2016 年，核心团队源自哈尔滨工业大学，是国内人形机器人产业化的领跑者。其代表产品「夸父 KUAVO」为全尺寸高动态人形机器人，全身 40+ 自由度，具备奔跑、连续跳跃与多地形行走能力，机器人上位机基于 Linux / ROS 进行应用开发。</p>
         <ul class="exp-list">
           <li>在软件部负责人形机器人<b>上位机 Linux 应用</b>的开发与维护，参与 ROS 应用层功能的迭代。</li>
@@ -1323,88 +1154,86 @@
           <li>与算法、硬件及测试团队<b>协同开发</b>，参与代码评审与版本管理，熟悉企业级机器人软件研发流程。</li>
         </ul>
       </article>
+
+      <div class="pager">
+        <a href="#home" data-go="home" class="pager-btn">← 上一页：首页</a>
+        <span class="pager-meta">Page 02 of 05</span>
+        <a href="#projects" data-go="projects" class="pager-btn next">下一页：项目工程 →</a>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<section id="featured" class="tinted">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <div class="sec-title-group">
-        <span class="sec-index">04</span>
-        <h2>重点项目</h2>
-      </div>
-      <span class="sec-en">Featured Engineering</span>
-    </div>
-
-    <article class="featured-plate reveal">
-      <div class="ft-meta">
-        <span class="ft-kicker">实习核心项目 · Leju Kuavo</span>
-        <span class="ft-when">2026.01 — 2026.06 · 乐聚机器人实习</span>
-      </div>
-      <h3>人形机器人 MID360 激光雷达仿真与自主导航系统集成</h3>
-      <p class="ft-sub">基于 Leju Kuavo 人形机器人，在 Gazebo 仿真环境中打通「激光雷达仿真 → SLAM 建图 → 自主导航」全链路，并将该能力从开发分支迁移、集成到目标工程的 SLAM / 导航工作空间（ROS Noetic / catkin）。</p>
-
-      <div class="ft-grid">
-        <div class="ft-item">
-          <div class="ft-num">01 / Bridge</div>
-          <b>仿真–真机数据桥接节点</b>
-          <p>编写 C++ 节点 <code>livox_sim_bridge</code>，将 Gazebo Livox 插件输出的点云实时转换为 FAST-LIO 所需的 <code>CustomMsg</code> 与导航用 <code>PointCloud2</code>，并对 IMU / 点云施加安装姿态补偿，打通「仿真传感器 → LIO 里程计 → octomap → move_base」数据流。</p>
+  <!-- ==================== 第 3 页：项目工程 ==================== -->
+  <section class="page" id="page-projects" data-page-id="projects">
+    <div class="wrap page-inner">
+      <div class="page-head">
+        <div class="page-head-left">
+          <span class="page-num">03</span>
+          <h1>项目工程</h1>
         </div>
-        <div class="ft-item">
-          <div class="ft-num">02 / Diagnostics</div>
-          <b>TF 树关键缺陷定位与修复</b>
-          <p>排查出 Gazebo Livox 插件重复发布 TF 导致 <code>livox_link</code> 出现双父节点、变换查询返回错误旋转，改由 robot_state_publisher 经 URDF 链路统一提供变换，解决下游建图 / 导航坐标错乱。</p>
-        </div>
-        <div class="ft-item">
-          <div class="ft-num">03 / Tuning</div>
-          <b>导航参数系统性调优</b>
-          <p>修复 <code>costmap_2d</code> 障碍层命名空间配置缺陷（此前障碍层始终为空）；调整局部代价地图尺寸、膨胀半径与代价缩放因子，按前瞻公式重算 MPC 速度与时域参数，显著改善卡死与绕障。</p>
-        </div>
-        <div class="ft-item">
-          <div class="ft-num">04 / Integration</div>
-          <b>运动控制与跨工程迁移</b>
-          <p>开发 Pure Pursuit 纯追踪控制 + 反应式重规划节点（路径被占据超阈值触发 <code>clear_costmaps</code> + 重规划）；在不同 git 分支工程间无损迁移，并通过 <code>catkin build</code> 编译验证全部产物。</p>
-        </div>
+        <span class="page-en">Featured &amp; Selected Projects</span>
       </div>
 
-      <div class="tags">
-        <span class="tag">ROS Noetic</span>
-        <span class="tag">C++</span>
-        <span class="tag">Python</span>
-        <span class="tag">Gazebo</span>
-        <span class="tag">FAST-LIO</span>
-        <span class="tag">Livox MID360</span>
-        <span class="tag">move_base</span>
-        <span class="tag">costmap_2d</span>
-        <span class="tag">MPC / TEB</span>
-        <span class="tag">octomap</span>
-        <span class="tag">TF2</span>
-        <span class="tag">catkin</span>
-      </div>
-    </article>
-  </div>
-</section>
+      <article class="featured-plate">
+        <div class="ft-meta">
+          <span class="ft-kicker">重点项目 · Leju Kuavo</span>
+          <span class="ft-when">2026.01 — 2026.06 · 乐聚机器人实习</span>
+        </div>
+        <h3>人形机器人 MID360 激光雷达仿真与自主导航系统集成</h3>
+        <p class="ft-sub">基于 Leju Kuavo 人形机器人，在 Gazebo 仿真环境中打通「激光雷达仿真 → SLAM 建图 → 自主导航」全链路，并将该能力从开发分支迁移、集成到目标工程的 SLAM / 导航工作空间（ROS Noetic / catkin）。</p>
 
-<section id="projects">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <div class="sec-title-group">
-        <span class="sec-index">05</span>
+        <div class="ft-grid">
+          <div class="ft-item">
+            <div class="ft-num">01 / Bridge</div>
+            <b>仿真–真机数据桥接节点</b>
+            <p>编写 C++ 节点 <code>livox_sim_bridge</code>，将 Gazebo Livox 插件输出的点云实时转换为 FAST-LIO 所需的 <code>CustomMsg</code> 与导航用 <code>PointCloud2</code>，并对 IMU / 点云施加安装姿态补偿，打通「仿真传感器 → LIO 里程计 → octomap → move_base」数据流。</p>
+          </div>
+          <div class="ft-item">
+            <div class="ft-num">02 / Diagnostics</div>
+            <b>TF 树关键缺陷定位与修复</b>
+            <p>排查出 Gazebo Livox 插件重复发布 TF 导致 <code>livox_link</code> 出现双父节点、变换查询返回错误旋转，改由 robot_state_publisher 经 URDF 链路统一提供变换，解决下游建图 / 导航坐标错乱。</p>
+          </div>
+          <div class="ft-item">
+            <div class="ft-num">03 / Tuning</div>
+            <b>导航参数系统性调优</b>
+            <p>修复 <code>costmap_2d</code> 障碍层命名空间配置缺陷（此前障碍层始终为空）；调整局部代价地图尺寸、膨胀半径与代价缩放因子，按前瞻公式重算 MPC 速度与时域参数，显著改善卡死与绕障。</p>
+          </div>
+          <div class="ft-item">
+            <div class="ft-num">04 / Integration</div>
+            <b>运动控制与跨工程迁移</b>
+            <p>开发 Pure Pursuit 纯追踪控制 + 反应式重规划节点（路径被占据超阈值触发 <code>clear_costmaps</code> + 重规划）；在不同 git 分支工程间无损迁移，并通过 <code>catkin build</code> 编译验证全部产物。</p>
+          </div>
+        </div>
+
+        <div class="tags">
+          <span class="tag">ROS Noetic</span>
+          <span class="tag">C++</span>
+          <span class="tag">Python</span>
+          <span class="tag">Gazebo</span>
+          <span class="tag">FAST-LIO</span>
+          <span class="tag">Livox MID360</span>
+          <span class="tag">move_base</span>
+          <span class="tag">costmap_2d</span>
+          <span class="tag">MPC / TEB</span>
+          <span class="tag">octomap</span>
+          <span class="tag">TF2</span>
+          <span class="tag">catkin</span>
+        </div>
+      </article>
+
+      <div class="sub-head">
         <h2>项目足迹</h2>
+        <span>Academic &amp; Competition Projects</span>
       </div>
-      <span class="sec-en">Selected Projects</span>
-    </div>
 
-    <div class="project-list">
-      <article class="proj-row reveal">
-        <div>
-          <div class="proj-idx">Project 01</div>
-          <div class="proj-date">2025.03 — 2025.06</div>
-        </div>
-        <div class="proj-body">
+      <div class="projects-cards">
+        <article class="proj-card">
+          <div class="proj-card-head">
+            <span class="proj-idx">Project 01</span>
+            <span class="proj-date">2025.03 — 2025.06</span>
+          </div>
           <h3>多机器人编队围捕系统</h3>
-          <p>基于 ROS 框架设计并实现多机器人协同编队与目标围捕系统。使用 TianBot 仿真平台，在 Gazebo 搭建测试环境、RViz 可视化监控。采用领航者-跟随者模型与虚拟结构法实现编队控制，结合 A* 与 TEB 完成全局规划与局部避障，检测到目标后自主切换为围捕模式并以预设阵型包围目标。</p>
+          <p>基于 ROS 框架设计并实现多机器人协同编队与目标围捕系统。使用 TianBot 仿真平台在 Gazebo 搭建测试环境、RViz 可视化监控；采用领航者-跟随者模型与虚拟结构法实现编队控制，结合 A* 与 TEB 完成全局规划与局部避障，检测到目标后自主切换为围捕阵型。</p>
           <div class="tags">
             <span class="tag">TianBot</span>
             <span class="tag">领航者-跟随者</span>
@@ -1412,15 +1241,13 @@
             <span class="tag">A* + TEB</span>
             <span class="tag">多机通信</span>
           </div>
-        </div>
-      </article>
+        </article>
 
-      <article class="proj-row reveal">
-        <div>
-          <div class="proj-idx">Project 02</div>
-          <div class="proj-date">2024.09 — 2024.12</div>
-        </div>
-        <div class="proj-body">
+        <article class="proj-card">
+          <div class="proj-card-head">
+            <span class="proj-idx">Project 02</span>
+            <span class="proj-date">2024.09 — 2024.12</span>
+          </div>
           <h3>自主垃圾捡拾车</h3>
           <p>负责四轮驱动底盘的搭建与改进，集成激光雷达与 IMU 传感器，使用 Jetson Nano 通过 ROS 实现多传感器数据融合，完成导航避障与 SLAM，确保室内高精度定位与灵活路径规划。</p>
           <div class="tags">
@@ -1429,15 +1256,13 @@
             <span class="tag">LiDAR + IMU</span>
             <span class="tag">室内 SLAM</span>
           </div>
-        </div>
-      </article>
+        </article>
 
-      <article class="proj-row reveal">
-        <div>
-          <div class="proj-idx">Project 03</div>
-          <div class="proj-date">2023.03 — 2024.06</div>
-        </div>
-        <div class="proj-body">
+        <article class="proj-card">
+          <div class="proj-card-head">
+            <span class="proj-idx">Project 03</span>
+            <span class="proj-date">2023.03 — 2024.06</span>
+          </div>
           <h3>ROS 无人机自主导航系统</h3>
           <p>集成 NUC 作为上位机、Pixhawk 6c 飞控作为下位机，搭配 Intel RealSense D435i 深度相机，构建了一套基于 ROS 的无人机系统，具备自主导航与避障能力，采用 Ego-Planner 作为核心导航避障算法。</p>
           <div class="tags">
@@ -1446,106 +1271,128 @@
             <span class="tag">RealSense D435i</span>
             <span class="tag">Ego-Planner</span>
           </div>
+        </article>
+      </div>
+
+      <div class="pager">
+        <a href="#about" data-go="about" class="pager-btn">← 上一页：关于与技艺</a>
+        <span class="pager-meta">Page 03 of 05</span>
+        <a href="#works" data-go="works" class="pager-btn next">下一页：作品画廊 →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 第 4 页：作品画廊 ==================== -->
+  <section class="page" id="page-works" data-page-id="works">
+    <div class="wrap page-inner">
+      <div class="page-head">
+        <div class="page-head-left">
+          <span class="page-num">04</span>
+          <h1>作品画廊</h1>
         </div>
-      </article>
-    </div>
-  </div>
-</section>
-
-<section id="works" class="tinted">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <div class="sec-title-group">
-        <span class="sec-index">06</span>
-        <h2>作品画廊</h2>
+        <span class="page-en">Hardware &amp; Live Demo</span>
       </div>
-      <span class="sec-en">Hardware &amp; Demo</span>
-    </div>
 
-    <div class="video-gallery reveal">
-      <div class="video-frame">
-        <iframe src="//player.bilibili.com/player.html?bvid=BV18f726cEgG&page=1&high_quality=1&danmaku=0&autoplay=0"
-          scrolling="no" frameborder="no" framespacing="0" allowfullscreen="true" loading="lazy" title="智能垃圾捡拾小车演示视频"></iframe>
-      </div>
-      <div class="video-caption">
-        <span><strong>智能垃圾捡拾小车</strong> · 完整实机演示视频</span>
-        <a href="https://www.bilibili.com/video/BV18f726cEgG/" target="_blank" rel="noopener">前往 Bilibili 观看 ↗</a>
-      </div>
-    </div>
-
-    <div class="works-grid reveal" id="worksGrid">
-      <figure class="work-card" data-idx="0">
-        <div class="work-img-wrap">
-          <img src="assets/works/work1_drone.jpg" alt="ROS 自主无人机实物图" loading="lazy">
+      <div class="works-layout">
+        <div class="video-card">
+          <div class="video-frame">
+            <iframe id="biliFrame"
+              data-src="//player.bilibili.com/player.html?bvid=BV18f726cEgG&page=1&high_quality=1&danmaku=0&autoplay=0"
+              scrolling="no" frameborder="no" framespacing="0" allowfullscreen="true" title="智能垃圾捡拾小车演示视频"></iframe>
+          </div>
+          <div class="video-caption">
+            <span><strong>智能垃圾捡拾小车</strong> · 完整实机演示视频</span>
+            <a href="https://www.bilibili.com/video/BV18f726cEgG/" target="_blank" rel="noopener">前往 Bilibili 观看 ↗</a>
+          </div>
         </div>
-        <figcaption class="work-cap">
-          <div class="w-title">ROS 自主无人机</div>
-          <div class="w-sub">NUC + RealSense D435i · Ego-Planner 自主导航与避障</div>
-        </figcaption>
-      </figure>
 
-      <figure class="work-card" data-idx="1">
-        <div class="work-img-wrap">
-          <img src="assets/works/work2_sorting.jpg" alt="履带式分拣机器人实物图" loading="lazy">
+        <div class="works-side" id="worksGrid">
+          <figure class="work-card" data-idx="0">
+            <div class="work-img-wrap">
+              <img src="assets/works/work1_drone.jpg" alt="ROS 自主无人机实物图" loading="lazy">
+            </div>
+            <figcaption>
+              <div class="work-cap">
+                <span class="w-title">ROS 自主无人机</span>
+                <span class="w-zoom">点击放大 ↗</span>
+              </div>
+              <div class="work-sub">NUC + RealSense D435i · Ego-Planner 自主导航与避障</div>
+            </figcaption>
+          </figure>
+
+          <figure class="work-card" data-idx="1">
+            <div class="work-img-wrap">
+              <img src="assets/works/work2_sorting.jpg" alt="履带式分拣机器人实物图" loading="lazy">
+            </div>
+            <figcaption>
+              <div class="work-cap">
+                <span class="w-title">履带式分拣机器人</span>
+                <span class="w-zoom">点击放大 ↗</span>
+              </div>
+              <div class="work-sub">机械臂抓取 + 激光雷达 + 三色分类回收</div>
+            </figcaption>
+          </figure>
         </div>
-        <figcaption class="work-cap">
-          <div class="w-title">履带式分拣机器人</div>
-          <div class="w-sub">机械臂抓取 + 激光雷达 + 三色分类回收</div>
-        </figcaption>
-      </figure>
-    </div>
-    <p class="hint-note">点击作品图片可放大欣赏细节</p>
-  </div>
-</section>
-
-<section id="awards">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <div class="sec-title-group">
-        <span class="sec-index">07</span>
-        <h2>荣誉长卷</h2>
       </div>
-      <span class="sec-en">Honors &amp; Certificates</span>
-    </div>
 
-    <div class="awards-tools reveal">
-      <div class="filter-pills" id="certFilters" role="tablist" aria-label="证书级别筛选">
-        <button class="pill-btn active" data-filter="all">全部 · 13</button>
-        <button class="pill-btn" data-filter="national">国家级 · 5</button>
-        <button class="pill-btn" data-filter="province">省级 · 3</button>
-        <button class="pill-btn" data-filter="school">校级 · 5</button>
-      </div>
-      <button class="mode-btn" id="toggleAwardsMode">展开平铺浏览</button>
-    </div>
-
-    <div class="marquee reveal" id="certMarquee">
-      <div class="marquee-track" id="certTrack"></div>
-    </div>
-    <p class="hint-note" id="awardsHint">悬停暂停流动 · 点击任意证书可放大查看</p>
-  </div>
-</section>
-
-<section id="contact" class="tinted contact-band">
-  <div class="wrap">
-    <div class="reveal">
-      <div class="contact-eyebrow">Get in Touch</div>
-      <h2>期待与你同行，探索更多可能</h2>
-      <p class="contact-sub">如果你对机器人、自主导航或技术合作感兴趣，欢迎随时写信或交流。</p>
-      <div class="contact-links">
-        <a href="mailto:BdtennysonsusannaN@usa.com" class="contact-pill primary">发送邮件 ↗</a>
-        <a href="https://github.com/wyz0603" target="_blank" rel="noopener" class="contact-pill">GitHub ↗</a>
-        <a href="#" id="topLink" class="contact-pill">回到卷首 ↑</a>
+      <div class="pager">
+        <a href="#projects" data-go="projects" class="pager-btn">← 上一页：项目工程</a>
+        <span class="pager-meta">Page 04 of 05</span>
+        <a href="#honors" data-go="honors" class="pager-btn next">下一页：荣誉与联系 →</a>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<footer>
-  <div class="wrap">
-    <div class="motto">Keep Going · 不忘初心，持续进步</div>
-    <div>© <span id="year"></span> 吴杨智 · Robotics &amp; Autonomous Navigation</div>
-  </div>
-</footer>
+  <!-- ==================== 第 5 页：荣誉长卷与联系 ==================== -->
+  <section class="page" id="page-honors" data-page-id="honors">
+    <div class="wrap page-inner">
+      <div class="page-head">
+        <div class="page-head-left">
+          <span class="page-num">05</span>
+          <h1>荣誉与致意</h1>
+        </div>
+        <span class="page-en">Honors &amp; Contact</span>
+      </div>
+
+      <div class="awards-tools">
+        <div class="filter-pills" id="certFilters" role="tablist" aria-label="证书级别筛选">
+          <button class="pill-btn active" data-filter="all">全部 · 13</button>
+          <button class="pill-btn" data-filter="national">国家级 · 5</button>
+          <button class="pill-btn" data-filter="province">省级 · 3</button>
+          <button class="pill-btn" data-filter="school">校级 · 5</button>
+        </div>
+        <button class="mode-btn" id="toggleAwardsMode">展开平铺浏览</button>
+      </div>
+
+      <div class="marquee" id="certMarquee">
+        <div class="marquee-track" id="certTrack"></div>
+      </div>
+      <p class="hint-note" id="awardsHint">悬停暂停流动 · 点击任意证书可放大查看 · 共 13 张真实证书</p>
+
+      <div class="contact-box">
+        <div>
+          <div class="contact-eyebrow">Get in Touch</div>
+          <h2>期待与你同行，探索更多可能</h2>
+          <p>如果你对机器人、自主导航或技术合作感兴趣，欢迎随时写信或交流。</p>
+        </div>
+        <div class="contact-links">
+          <a href="mailto:BdtennysonsusannaN@usa.com" class="contact-pill primary">发送邮件 ↗</a>
+          <a href="https://github.com/wyz0603" target="_blank" rel="noopener" class="contact-pill">GitHub ↗</a>
+        </div>
+      </div>
+
+      <div class="pager">
+        <a href="#works" data-go="works" class="pager-btn">← 上一页：作品画廊</a>
+        <span class="pager-meta">Page 05 of 05</span>
+        <a href="#home" data-go="home" class="pager-btn next">返回首页 ↺</a>
+      </div>
+
+      <div class="mini-colophon">
+        Keep Going · © <span id="year"></span> 吴杨智 · Robotics &amp; Autonomous Navigation
+      </div>
+    </div>
+  </section>
+</main>
 
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="图片预览">
   <button class="lb-close" id="lbClose" aria-label="关闭">×</button>
@@ -1556,17 +1403,79 @@
 </div>
 
 <script>
-  // ---------- 顶部阅读进度条 & 导航状态 ----------
-  const scrollLine = document.getElementById('scrollLine');
-  const topNav = document.getElementById('topNav');
-  function onScroll() {
-    const h = document.documentElement.scrollHeight - window.innerHeight;
-    const p = h > 0 ? (window.scrollY / h) * 100 : 0;
-    scrollLine.style.width = p.toFixed(2) + '%';
-    topNav.classList.toggle('scrolled', window.scrollY > 18);
+  // ---------- 五页路由系统 ----------
+  const PAGES = ['home', 'about', 'projects', 'works', 'honors'];
+  const PAGE_TITLES = {
+    home: '吴杨智 · Robotics & Autonomous Navigation',
+    about: '关于与技艺 · 吴杨智',
+    projects: '项目工程 · 吴杨智',
+    works: '作品画廊 · 吴杨智',
+    honors: '荣誉与联系 · 吴杨智'
+  };
+  const navLinks = document.getElementById('navLinks');
+  const menuBtn = document.getElementById('menuBtn');
+  const folioCounter = document.getElementById('folioCounter');
+  const biliFrame = document.getElementById('biliFrame');
+  let skillBarsAnimated = false;
+
+  function animateSkillBars() {
+    if (skillBarsAnimated) return;
+    skillBarsAnimated = true;
+    document.querySelectorAll('#skillBars .bar-row').forEach((r, i) => {
+      setTimeout(() => {
+        r.querySelector('.bar-fill').style.width = r.dataset.pct + '%';
+      }, 120 + i * 80);
+    });
   }
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
+
+  function showPage(id, pushHash = true) {
+    const target = PAGES.includes(id) ? id : 'home';
+    document.body.dataset.page = target;
+    document.title = PAGE_TITLES[target];
+
+    document.querySelectorAll('.page').forEach(sec => {
+      sec.classList.toggle('active', sec.dataset.pageId === target);
+    });
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.classList.toggle('active', tab.dataset.go === target);
+    });
+
+    const idx = PAGES.indexOf(target) + 1;
+    folioCounter.innerHTML = `<strong>0${idx}</strong> / 05`;
+
+    if (target === 'about') animateSkillBars();
+    if (target === 'works' && biliFrame && !biliFrame.src) {
+      biliFrame.src = biliFrame.dataset.src;
+    }
+
+    if (pushHash && location.hash !== '#' + target) {
+      history.pushState(null, '', '#' + target);
+    }
+    navLinks.classList.remove('open');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+
+  document.addEventListener('click', e => {
+    const link = e.target.closest('[data-go]');
+    if (!link) return;
+    e.preventDefault();
+    showPage(link.dataset.go, true);
+  });
+
+  window.addEventListener('hashchange', () => {
+    const h = location.hash.replace(/^#\/?/, '');
+    showPage(h || 'home', false);
+  });
+
+  // 初始化页面（兼容旧锚点）
+  (function initRoute() {
+    const raw = location.hash.replace(/^#\/?/, '');
+    const alias = { skills: 'about', experience: 'about', featured: 'projects', awards: 'honors', contact: 'honors' };
+    showPage(alias[raw] || raw || 'home', false);
+  })();
+
+  menuBtn.addEventListener('click', () => navLinks.classList.toggle('open'));
+  document.getElementById('year').textContent = new Date().getFullYear();
 
   // ---------- 诗意副标题轻柔淡入轮播 ----------
   (function () {
@@ -1578,15 +1487,14 @@
     ];
     const el = document.getElementById('poeticText');
     let idx = 0;
-    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduce) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     setInterval(() => {
       el.classList.add('fading');
       setTimeout(() => {
         idx = (idx + 1) % phrases.length;
         el.textContent = phrases[idx];
         el.classList.remove('fading');
-      }, 620);
+      }, 600);
     }, 4200);
   })();
 
@@ -1600,17 +1508,17 @@
     const mouse = { x: 0.5, y: 0.5, tx: 0.5, ty: 0.5 };
 
     const ribbons = [
-      { yRatio: 0.24, amp: 34, freq: 0.0022, speed: 0.00055, phase: 0.0,  width: 1.4, color: 'rgba(51, 92, 134, 0.14)' },
-      { yRatio: 0.34, amp: 46, freq: 0.0017, speed: 0.00042, phase: 1.6,  width: 1.0, color: 'rgba(196, 117, 75, 0.15)' },
-      { yRatio: 0.52, amp: 52, freq: 0.0015, speed: 0.00048, phase: 3.1,  width: 1.6, color: 'rgba(51, 92, 134, 0.11)' },
-      { yRatio: 0.68, amp: 38, freq: 0.0021, speed: 0.00036, phase: 4.5,  width: 1.1, color: 'rgba(196, 117, 75, 0.12)' },
-      { yRatio: 0.80, amp: 28, freq: 0.0025, speed: 0.00050, phase: 2.3,  width: 0.9, color: 'rgba(78, 114, 102, 0.12)' }
+      { yRatio: 0.22, amp: 34, freq: 0.0022, speed: 0.00055, phase: 0.0, width: 1.4, color: 'rgba(51, 92, 134, 0.14)' },
+      { yRatio: 0.34, amp: 46, freq: 0.0017, speed: 0.00042, phase: 1.6, width: 1.0, color: 'rgba(196, 117, 75, 0.15)' },
+      { yRatio: 0.52, amp: 52, freq: 0.0015, speed: 0.00048, phase: 3.1, width: 1.6, color: 'rgba(51, 92, 134, 0.11)' },
+      { yRatio: 0.68, amp: 38, freq: 0.0021, speed: 0.00036, phase: 4.5, width: 1.1, color: 'rgba(196, 117, 75, 0.12)' },
+      { yRatio: 0.82, amp: 28, freq: 0.0025, speed: 0.00050, phase: 2.3, width: 0.9, color: 'rgba(78, 114, 102, 0.12)' }
     ];
 
     function resize() {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
-      w = cv.offsetWidth;
-      h = cv.offsetHeight;
+      w = window.innerWidth;
+      h = window.innerHeight;
       cv.width = Math.floor(w * dpr);
       cv.height = Math.floor(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -1656,69 +1564,21 @@
     });
   })();
 
-  // ---------- 技能墨迹进度条 ----------
-  (function () {
-    const box = document.getElementById('skillBars');
-    if (!box) return;
-    const o = new IntersectionObserver(es => {
-      es.forEach(e => {
-        if (e.isIntersecting) {
-          box.querySelectorAll('.bar-row').forEach((r, i) => {
-            setTimeout(() => {
-              r.querySelector('.bar-fill').style.width = r.dataset.pct + '%';
-            }, i * 90);
-          });
-          o.disconnect();
-        }
-      });
-    }, { threshold: 0.25 });
-    o.observe(box);
-  })();
-
-  // ---------- 移动端导航 & 章节高亮 ----------
-  const menuBtn = document.getElementById('menuBtn');
-  const navLinks = document.getElementById('navLinks');
-  menuBtn.addEventListener('click', () => navLinks.classList.toggle('open'));
-  navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navLinks.classList.remove('open')));
-
-  const secIds = ['about', 'skills', 'experience', 'featured', 'projects', 'works', 'awards', 'contact'];
-  const navMap = new Map(secIds.map(id => [id, navLinks.querySelector(`a[href="#${id}"]`)]));
-  const secObs = new IntersectionObserver(entries => {
-    entries.forEach(en => {
-      if (en.isIntersecting) {
-        navMap.forEach(a => a && a.classList.remove('active'));
-        const link = navMap.get(en.target.id);
-        if (link) link.classList.add('active');
-      }
-    });
-  }, { rootMargin: '-35% 0px -55% 0px' });
-  secIds.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) secObs.observe(el);
-  });
-
-  // 回到顶部 & 年份
-  document.getElementById('topLink').addEventListener('click', e => {
-    e.preventDefault();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-  document.getElementById('year').textContent = new Date().getFullYear();
-
   // ---------- 证书数据与长卷 / 平铺切换 ----------
   const CERTS = [
-    { img: 'assets/certs/n1_raicom_guoyi-1.jpg',      name: '2025 睿抗机器人开发者大赛 · 园林环保 · 全国总决赛',  lvl: 'national', tag: '国家级一等奖' },
-    { img: 'assets/certs/n2_jqr_guoyi-1.jpg',          name: '中国机器人及人工智能大赛 · 全国总决赛',             lvl: 'national', tag: '国家级一等奖' },
-    { img: 'assets/certs/n3_gcsj_guoyi-1.jpg',         name: '中国大学生工程实践与创新能力大赛 · 飞行器设计仿真',  lvl: 'national', tag: '国家级一等奖' },
-    { img: 'assets/certs/n5_zhinongye_guoyi-1.jpg',    name: '全国大赛 · 智慧农业项目',                           lvl: 'national', tag: '国家级一等奖' },
-    { img: 'assets/certs/n4_zhihuiche_guoer-1.jpg',    name: '全国大学生智能汽车竞赛 · 智慧医疗赛项',             lvl: 'national', tag: '国家级二等奖' },
-    { img: 'assets/certs/p2_raicom_sheng_san_2025.jpg',name: '2025 睿抗机器人开发者大赛 · 陕西赛区 · 空中侦察',   lvl: 'province', tag: '省级三等奖' },
-    { img: 'assets/certs/p1_raicom_sheng_san_2024.jpg',name: '2024 睿抗机器人开发者大赛 · 陕西省 · ROS 虚拟仿真', lvl: 'province', tag: '省级三等奖' },
-    { img: 'assets/certs/p3_raicom_sheng_san_2024b.jpg',name: '2024 睿抗机器人开发者大赛 · 陕西赛区 · 空中侦察',  lvl: 'province', tag: '省级三等奖' },
-    { img: 'assets/certs/s1_xiaosai_nongye_yi.jpg',    name: '中国机器人及人工智能大赛校赛 · 智慧农业项目',       lvl: 'school',   tag: '校级一等奖' },
-    { img: 'assets/certs/s2_xiaosai_jiashi_yi.jpg',    name: '中国机器人及人工智能大赛校赛 · 智能驾驶项目',       lvl: 'school',   tag: '校级一等奖' },
-    { img: 'assets/certs/s3_xiaosai_chuangyi_er.jpg',  name: '中国机器人及人工智能大赛校赛 · 创意组项目',         lvl: 'school',   tag: '校级二等奖' },
-    { img: 'assets/certs/s4_xiaosai_kongzhong_er.jpg', name: '中国机器人及人工智能大赛校赛 · 空中侦查项目',       lvl: 'school',   tag: '校级二等奖' },
-    { img: 'assets/certs/s5_xiaosai_wudao_san.jpg',    name: '中国机器人及人工智能大赛校赛 · 仿人形舞蹈项目',     lvl: 'school',   tag: '校级三等奖' }
+    { img: 'assets/certs/n1_raicom_guoyi-1.jpg',       name: '2025 睿抗机器人开发者大赛 · 园林环保 · 全国总决赛',  lvl: 'national', tag: '国家级一等奖' },
+    { img: 'assets/certs/n2_jqr_guoyi-1.jpg',           name: '中国机器人及人工智能大赛 · 全国总决赛',             lvl: 'national', tag: '国家级一等奖' },
+    { img: 'assets/certs/n3_gcsj_guoyi-1.jpg',          name: '中国大学生工程实践与创新能力大赛 · 飞行器设计仿真',  lvl: 'national', tag: '国家级一等奖' },
+    { img: 'assets/certs/n5_zhinongye_guoyi-1.jpg',     name: '全国大赛 · 智慧农业项目',                           lvl: 'national', tag: '国家级一等奖' },
+    { img: 'assets/certs/n4_zhihuiche_guoer-1.jpg',     name: '全国大学生智能汽车竞赛 · 智慧医疗赛项',             lvl: 'national', tag: '国家级二等奖' },
+    { img: 'assets/certs/p2_raicom_sheng_san_2025.jpg', name: '2025 睿抗机器人开发者大赛 · 陕西赛区 · 空中侦察',   lvl: 'province', tag: '省级三等奖' },
+    { img: 'assets/certs/p1_raicom_sheng_san_2024.jpg', name: '2024 睿抗机器人开发者大赛 · 陕西省 · ROS 虚拟仿真', lvl: 'province', tag: '省级三等奖' },
+    { img: 'assets/certs/p3_raicom_sheng_san_2024b.jpg',name: '2024 睿抗机器人开发者大赛 · 陕西赛区 · 空中侦察',   lvl: 'province', tag: '省级三等奖' },
+    { img: 'assets/certs/s1_xiaosai_nongye_yi.jpg',     name: '中国机器人及人工智能大赛校赛 · 智慧农业项目',       lvl: 'school',   tag: '校级一等奖' },
+    { img: 'assets/certs/s2_xiaosai_jiashi_yi.jpg',     name: '中国机器人及人工智能大赛校赛 · 智能驾驶项目',       lvl: 'school',   tag: '校级一等奖' },
+    { img: 'assets/certs/s3_xiaosai_chuangyi_er.jpg',   name: '中国机器人及人工智能大赛校赛 · 创意组项目',         lvl: 'school',   tag: '校级二等奖' },
+    { img: 'assets/certs/s4_xiaosai_kongzhong_er.jpg',  name: '中国机器人及人工智能大赛校赛 · 空中侦查项目',       lvl: 'school',   tag: '校级二等奖' },
+    { img: 'assets/certs/s5_xiaosai_wudao_san.jpg',     name: '中国机器人及人工智能大赛校赛 · 仿人形舞蹈项目',     lvl: 'school',   tag: '校级三等奖' }
   ];
 
   const track = document.getElementById('certTrack');
@@ -1751,11 +1611,9 @@
       ? `共展示 ${visibleCerts.length} 张真实证书 · 点击任意证书可放大查看`
       : '悬停暂停流动 · 点击任意证书可放大查看 · 共 13 张真实证书';
 
-    if (shouldExpand) {
-      track.innerHTML = visibleCerts.map(certCardHTML).join('');
-    } else {
-      track.innerHTML = visibleCerts.map(certCardHTML).join('') + visibleCerts.map(certCardHTML).join('');
-    }
+    track.innerHTML = shouldExpand
+      ? visibleCerts.map(certCardHTML).join('')
+      : visibleCerts.map(certCardHTML).join('') + visibleCerts.map(certCardHTML).join('');
   }
   renderCerts();
 
@@ -1781,7 +1639,7 @@
     renderCerts();
   });
 
-  // ---------- 作品与头像数据 ----------
+  // ---------- 作品与头像灯箱 ----------
   const WORKS = [
     { img: 'assets/works/work1_drone.jpg',   name: 'ROS 自主无人机 · NUC + RealSense D435i · Ego-Planner 自主导航与避障' },
     { img: 'assets/works/work2_sorting.jpg', name: '履带式分拣机器人 · 机械臂抓取 + 激光雷达 + 三色分类回收' }
@@ -1790,7 +1648,6 @@
     { img: 'wyz.jpg', name: '吴杨智 · Keep Going — 不忘初心，持续进步' }
   ];
 
-  // ---------- 灯箱 ----------
   const lb = document.getElementById('lightbox');
   const lbImg = document.getElementById('lbImg');
   const lbCap = document.getElementById('lbCap');
@@ -1836,44 +1693,6 @@
     if (e.key === 'Escape') lb.classList.remove('open');
     if (e.key === 'ArrowLeft' && GAL.length > 1) showLightbox(GAL, cur - 1);
     if (e.key === 'ArrowRight' && GAL.length > 1) showLightbox(GAL, cur + 1);
-  });
-
-  // ---------- 静谧数字滚动 ----------
-  (function () {
-    const band = document.getElementById('statsBand');
-    if (!band) return;
-    const o = new IntersectionObserver(es => {
-      es.forEach(e => {
-        if (e.isIntersecting) {
-          band.querySelectorAll('.metric-num').forEach(el => {
-            const t = +el.dataset.to, suf = el.dataset.suf || '', st = performance.now(), dur = 1100;
-            (function tick(now) {
-              const p = Math.min(1, (now - st) / dur);
-              const v = Math.round(t * (1 - Math.pow(1 - p, 3)));
-              const formatted = v < 10 ? '0' + v : String(v);
-              el.innerHTML = formatted + (suf ? `<span class="suf">${suf}</span>` : '');
-              if (p < 1) requestAnimationFrame(tick);
-            })(st);
-          });
-          o.disconnect();
-        }
-      });
-    }, { threshold: 0.35 });
-    o.observe(band);
-  })();
-
-  // ---------- 渐入浮现 ----------
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(en => {
-      if (en.isIntersecting) {
-        en.target.classList.add('show');
-        io.unobserve(en.target);
-      }
-    });
-  }, { threshold: 0.1 });
-  document.querySelectorAll('.reveal').forEach((el, i) => {
-    el.style.transitionDelay = (i % 4) * 0.07 + 's';
-    io.observe(el);
   });
 </script>
 </body>
