@@ -806,6 +806,229 @@
     font-size: 12.5px; color: var(--ink-muted); letter-spacing: 0.1em;
   }
 
+  /* =========================================================
+     卷五 · 个人足迹（中国分省点亮地图）
+     ========================================================= */
+  .fp-layout {
+    display: grid;
+    grid-template-columns: 1.46fr 0.78fr;
+    gap: 28px;
+    align-items: start;
+  }
+  .map-stage {
+    position: relative;
+    background: var(--surface-solid);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    padding: 20px 22px 18px;
+    box-shadow: 0 18px 46px rgba(28, 34, 45, 0.05);
+    overflow: hidden;
+  }
+  .map-top-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .map-motto {
+    font-family: var(--serif); font-size: 14px; color: var(--ink-soft);
+    letter-spacing: 0.08em;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .map-motto::before {
+    content: ""; width: 16px; height: 1px; background: var(--amber);
+  }
+  .map-legend {
+    display: flex; align-items: center; gap: 16px; font-size: 12.5px; color: var(--ink-muted);
+  }
+  .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+  .legend-swatch {
+    width: 11px; height: 11px; border-radius: 3px; display: inline-block;
+  }
+  .legend-swatch.lit {
+    background: linear-gradient(135deg, #D98A5F, #C4754B);
+    box-shadow: 0 0 8px rgba(196, 117, 75, 0.42);
+  }
+  .legend-swatch.dim { background: #EAE4D9; border: 1px solid rgba(28, 34, 45, 0.18); }
+
+  .china-svg-wrap {
+    position: relative; width: 100%;
+  }
+  #chinaMapSvg {
+    width: 100%; height: auto; display: block;
+    user-select: none;
+  }
+  .prov-path {
+    fill: #EDE8DF;
+    stroke: rgba(28, 34, 45, 0.22);
+    stroke-width: 0.85;
+    stroke-linejoin: round;
+    cursor: pointer;
+    transition: fill 0.3s ease, stroke 0.3s ease, filter 0.3s ease, opacity 0.3s ease;
+  }
+  .prov-path:hover {
+    fill: #E1DACB;
+    stroke: rgba(51, 92, 134, 0.45);
+  }
+  .prov-path.visited {
+    fill: url(#litGrad);
+    stroke: rgba(255, 253, 249, 0.85);
+    stroke-width: 1.1;
+    filter: url(#litGlow);
+  }
+  .prov-path.visited:hover,
+  .prov-path.visited.selected {
+    fill: url(#litGradActive);
+    stroke: #FFFEFC;
+    stroke-width: 1.45;
+  }
+  .prov-path.dimmed { opacity: 0.55; }
+
+  .route-arc {
+    fill: none;
+    stroke: rgba(51, 92, 134, 0.52);
+    stroke-width: 1.5;
+    stroke-dasharray: 5 5;
+    stroke-linecap: round;
+    pointer-events: none;
+    animation: dashFlow 22s linear infinite;
+  }
+  @keyframes dashFlow { to { stroke-dashoffset: -160; } }
+
+  .pin-pulse {
+    fill: rgba(196, 117, 75, 0.35);
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: pinRipple 2.8s ease-out infinite;
+    pointer-events: none;
+  }
+  @keyframes pinRipple {
+    0% { transform: scale(1); opacity: 0.72; }
+    100% { transform: scale(3.2); opacity: 0; }
+  }
+  .pin-core {
+    fill: #1C222D; stroke: #FFFEFC; stroke-width: 2;
+    cursor: pointer;
+    transition: fill 0.25s ease, transform 0.25s ease;
+  }
+  .pin-label {
+    font-family: var(--serif); font-size: 13px; font-weight: 600;
+    fill: #1C222D;
+    paint-order: stroke;
+    stroke: rgba(249, 247, 242, 0.94);
+    stroke-width: 4px;
+    stroke-linejoin: round;
+    pointer-events: none;
+    letter-spacing: 0.06em;
+  }
+  .inset-frame {
+    fill: rgba(249, 247, 242, 0.88);
+    stroke: rgba(28, 34, 45, 0.22);
+    stroke-width: 1;
+  }
+  .inset-land {
+    fill: #E7E1D6; stroke: rgba(28, 34, 45, 0.20); stroke-width: 0.5;
+  }
+  .inset-land.visited { fill: #D38156; stroke: rgba(255,253,249,0.7); }
+  .inset-dash { fill: none; stroke: rgba(51, 92, 134, 0.65); stroke-width: 1.15; stroke-linecap: round; }
+  .inset-title {
+    font-family: var(--serif); font-size: 11px; fill: var(--ink-muted);
+    letter-spacing: 0.14em; pointer-events: none;
+  }
+
+  .map-tooltip {
+    position: absolute; z-index: 15; pointer-events: none;
+    background: rgba(28, 34, 45, 0.90);
+    backdrop-filter: blur(8px);
+    color: #F9F7F2;
+    padding: 8px 13px; border-radius: 10px;
+    font-size: 12.8px; line-height: 1.5;
+    box-shadow: 0 10px 26px rgba(28, 34, 45, 0.22);
+    opacity: 0; transform: translate(-50%, -115%);
+    transition: opacity 0.16s ease;
+    white-space: nowrap;
+  }
+  .map-tooltip.show { opacity: 1; }
+  .map-tooltip .tt-name { font-family: var(--serif); font-weight: 600; letter-spacing: 0.06em; }
+  .map-tooltip .tt-sub { color: #E2B89B; font-size: 11.8px; margin-left: 6px; }
+  .map-tooltip .tt-sub.dim { color: #B4BCC9; }
+
+  .fp-sidebar { display: grid; gap: 16px; }
+  .fp-progress-card {
+    background: var(--surface-solid);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 22px 24px;
+    box-shadow: 0 10px 28px rgba(28, 34, 45, 0.04);
+  }
+  .fp-prog-top {
+    display: flex; align-items: baseline; justify-content: space-between;
+  }
+  .fp-big {
+    font-family: var(--latin-serif); font-size: 42px; font-weight: 500;
+    line-height: 1; color: var(--ink);
+  }
+  .fp-big span { font-size: 18px; color: var(--ink-muted); margin-left: 4px; }
+  .fp-pct {
+    font-family: var(--mono); font-size: 13px; color: var(--amber);
+    padding: 3px 10px; border-radius: 999px; background: var(--amber-soft);
+  }
+  .fp-prog-lbl {
+    margin-top: 8px; font-size: 13px; color: var(--ink-muted); letter-spacing: 0.06em;
+  }
+  .fp-prog-track {
+    margin-top: 14px; height: 3px; border-radius: 99px;
+    background: rgba(28, 34, 45, 0.10); overflow: hidden;
+  }
+  .fp-prog-fill {
+    height: 100%; border-radius: 99px;
+    background: linear-gradient(90deg, var(--indigo), var(--amber));
+    transition: width 1s var(--ease);
+  }
+
+  .fp-cards { display: grid; gap: 12px; }
+  .fp-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px 20px;
+    cursor: pointer;
+    transition: transform 0.3s var(--ease), border-color 0.25s ease, box-shadow 0.3s ease, background 0.25s ease;
+  }
+  .fp-card:hover, .fp-card.active {
+    transform: translateY(-2px);
+    border-color: rgba(196, 117, 75, 0.52);
+    background: var(--surface-solid);
+    box-shadow: 0 12px 28px rgba(196, 117, 75, 0.10);
+  }
+  .fp-card-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .fp-card-title {
+    font-family: var(--serif); font-size: 17px; font-weight: 600;
+    letter-spacing: 0.06em; color: var(--ink);
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .fp-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--amber);
+    box-shadow: 0 0 0 4px var(--amber-soft);
+  }
+  .fp-tag {
+    font-size: 11.5px; color: var(--indigo);
+    background: var(--indigo-soft);
+    padding: 2px 10px; border-radius: 999px; letter-spacing: 0.04em;
+  }
+  .fp-card p {
+    margin-top: 8px; font-size: 13.5px; color: var(--ink-soft); line-height: 1.75;
+  }
+  .fp-inspect {
+    padding: 13px 16px; border-radius: 13px;
+    border: 1px dashed var(--line-strong);
+    font-size: 13px; color: var(--ink-muted); line-height: 1.65;
+    background: rgba(255, 253, 249, 0.5);
+  }
+  .fp-inspect strong { color: var(--ink); font-weight: 500; }
+
   /* ---------- 灯箱 ---------- */
   .lightbox {
     position: fixed; inset: 0; z-index: 120;
@@ -856,6 +1079,7 @@
     .ft-grid { grid-template-columns: 1fr; }
     .projects-cards { grid-template-columns: 1fr; }
     .works-layout { grid-template-columns: 1fr; }
+    .fp-layout { grid-template-columns: 1fr; }
   }
   @media (max-width: 760px) {
     .wrap { padding: 0 20px; }
@@ -900,11 +1124,12 @@
       <a href="#about" class="nav-tab" data-go="about"><span class="tab-num">02</span>关于</a>
       <a href="#projects" class="nav-tab" data-go="projects"><span class="tab-num">03</span>项目</a>
       <a href="#works" class="nav-tab" data-go="works"><span class="tab-num">04</span>作品</a>
-      <a href="#honors" class="nav-tab" data-go="honors"><span class="tab-num">05</span>荣誉</a>
+      <a href="#footprints" class="nav-tab" data-go="footprints"><span class="tab-num">05</span>足迹</a>
+      <a href="#honors" class="nav-tab" data-go="honors"><span class="tab-num">06</span>荣誉</a>
     </div>
 
     <div class="nav-right">
-      <div class="folio-counter" id="folioCounter"><strong>01</strong> / 05</div>
+      <div class="folio-counter" id="folioCounter"><strong>01</strong> / 06</div>
       <button class="menu-btn" id="menuBtn" aria-label="打开导航菜单">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
           <line x1="4" y1="7" x2="20" y2="7"></line>
@@ -953,6 +1178,7 @@
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
             </a>
             <a href="https://github.com/wyz0603" target="_blank" rel="noopener" class="link-arrow">GitHub <span class="arr">↗</span></a>
+            <a href="#footprints" data-go="footprints" class="link-arrow">中国足迹 <span class="arr">↗</span></a>
             <a href="#honors" data-go="honors" class="link-arrow">荣誉与联系 <span class="arr">↗</span></a>
           </div>
         </div>
@@ -1157,7 +1383,7 @@
 
       <div class="pager">
         <a href="#home" data-go="home" class="pager-btn">← 上一页：首页</a>
-        <span class="pager-meta">Page 02 of 05</span>
+        <span class="pager-meta">Page 02 of 06</span>
         <a href="#projects" data-go="projects" class="pager-btn next">下一页：项目工程 →</a>
       </div>
     </div>
@@ -1276,7 +1502,7 @@
 
       <div class="pager">
         <a href="#about" data-go="about" class="pager-btn">← 上一页：关于与技艺</a>
-        <span class="pager-meta">Page 03 of 05</span>
+        <span class="pager-meta">Page 03 of 06</span>
         <a href="#works" data-go="works" class="pager-btn next">下一页：作品画廊 →</a>
       </div>
     </div>
@@ -1337,18 +1563,71 @@
 
       <div class="pager">
         <a href="#projects" data-go="projects" class="pager-btn">← 上一页：项目工程</a>
-        <span class="pager-meta">Page 04 of 05</span>
+        <span class="pager-meta">Page 04 of 06</span>
+        <a href="#footprints" data-go="footprints" class="pager-btn next">下一页：个人足迹 →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 第 5 页：个人足迹（中国地图分省点亮） ==================== -->
+  <section class="page" id="page-footprints" data-page-id="footprints">
+    <div class="wrap page-inner">
+      <div class="page-head">
+        <div class="page-head-left">
+          <span class="page-num">05</span>
+          <h1>个人足迹</h1>
+        </div>
+        <span class="page-en">Footprints Across China</span>
+      </div>
+
+      <div class="fp-layout">
+        <div class="map-stage">
+          <div class="map-top-bar">
+            <div class="map-motto">去更多的地方，看更大的世界</div>
+            <div class="map-legend">
+              <span class="legend-item"><span class="legend-swatch lit"></span>已点亮省份</span>
+              <span class="legend-item"><span class="legend-swatch dim"></span>待启程</span>
+            </div>
+          </div>
+
+          <div class="china-svg-wrap" id="chinaSvgWrap">
+            <svg id="chinaMapSvg" viewBox="0 0 920 700" role="img" aria-label="中国分省足迹地图"></svg>
+            <div class="map-tooltip" id="mapTooltip" aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <aside class="fp-sidebar">
+          <div class="fp-progress-card">
+            <div class="fp-prog-top">
+              <div class="fp-big" id="fpCount">03<span>/ 34</span></div>
+              <div class="fp-pct" id="fpPct">8.8%</div>
+            </div>
+            <div class="fp-prog-lbl">已点亮中国省级行政区 · 持续探索中</div>
+            <div class="fp-prog-track"><div class="fp-prog-fill" id="fpProgFill" style="width: 8.8%"></div></div>
+          </div>
+
+          <div class="fp-cards" id="fpCards"></div>
+
+          <div class="fp-inspect" id="fpInspect">
+            悬停或点击地图任意省份查看详情；点击右侧卡片可聚焦对应省份。
+          </div>
+        </aside>
+      </div>
+
+      <div class="pager">
+        <a href="#works" data-go="works" class="pager-btn">← 上一页：作品画廊</a>
+        <span class="pager-meta">Page 05 of 06</span>
         <a href="#honors" data-go="honors" class="pager-btn next">下一页：荣誉与联系 →</a>
       </div>
     </div>
   </section>
 
-  <!-- ==================== 第 5 页：荣誉长卷与联系 ==================== -->
+  <!-- ==================== 第 6 页：荣誉长卷与联系 ==================== -->
   <section class="page" id="page-honors" data-page-id="honors">
     <div class="wrap page-inner">
       <div class="page-head">
         <div class="page-head-left">
-          <span class="page-num">05</span>
+          <span class="page-num">06</span>
           <h1>荣誉与致意</h1>
         </div>
         <span class="page-en">Honors &amp; Contact</span>
@@ -1382,8 +1661,8 @@
       </div>
 
       <div class="pager">
-        <a href="#works" data-go="works" class="pager-btn">← 上一页：作品画廊</a>
-        <span class="pager-meta">Page 05 of 05</span>
+        <a href="#footprints" data-go="footprints" class="pager-btn">← 上一页：个人足迹</a>
+        <span class="pager-meta">Page 06 of 06</span>
         <a href="#home" data-go="home" class="pager-btn next">返回首页 ↺</a>
       </div>
 
@@ -1402,14 +1681,16 @@
   <div class="lb-cap" id="lbCap"></div>
 </div>
 
+<script src="assets/china-map.js"></script>
 <script>
-  // ---------- 五页路由系统 ----------
-  const PAGES = ['home', 'about', 'projects', 'works', 'honors'];
+  // ---------- 六页路由系统 ----------
+  const PAGES = ['home', 'about', 'projects', 'works', 'footprints', 'honors'];
   const PAGE_TITLES = {
     home: '吴杨智 · Robotics & Autonomous Navigation',
     about: '关于与技艺 · 吴杨智',
     projects: '项目工程 · 吴杨智',
     works: '作品画廊 · 吴杨智',
+    footprints: '个人足迹 · 吴杨智',
     honors: '荣誉与联系 · 吴杨智'
   };
   const navLinks = document.getElementById('navLinks');
@@ -1441,7 +1722,7 @@
     });
 
     const idx = PAGES.indexOf(target) + 1;
-    folioCounter.innerHTML = `<strong>0${idx}</strong> / 05`;
+    folioCounter.innerHTML = `<strong>0${idx}</strong> / 0${PAGES.length}`;
 
     if (target === 'about') animateSkillBars();
     if (target === 'works' && biliFrame && !biliFrame.src) {
@@ -1470,7 +1751,7 @@
   // 初始化页面（兼容旧锚点）
   (function initRoute() {
     const raw = location.hash.replace(/^#\/?/, '');
-    const alias = { skills: 'about', experience: 'about', featured: 'projects', awards: 'honors', contact: 'honors' };
+    const alias = { skills: 'about', experience: 'about', featured: 'projects', awards: 'honors', contact: 'honors', map: 'footprints' };
     showPage(alias[raw] || raw || 'home', false);
   })();
 
@@ -1694,6 +1975,231 @@
     if (e.key === 'ArrowLeft' && GAL.length > 1) showLightbox(GAL, cur - 1);
     if (e.key === 'ArrowRight' && GAL.length > 1) showLightbox(GAL, cur + 1);
   });
+
+  // ---------- 个人足迹：中国分省点亮地图 ----------
+  (function () {
+    const data = window.CHINA_MAP_DATA;
+    const svg = document.getElementById('chinaMapSvg');
+    const wrap = document.getElementById('chinaSvgWrap');
+    const tooltip = document.getElementById('mapTooltip');
+    const cardsBox = document.getElementById('fpCards');
+    const inspectBox = document.getElementById('fpInspect');
+    const countEl = document.getElementById('fpCount');
+    const pctEl = document.getElementById('fpPct');
+    const fillEl = document.getElementById('fpProgFill');
+    if (!data || !svg) return;
+
+    // 以后每去一个新省份，只需在此列表新增一条记录，地图与进度条会自动点亮更新
+    const FOOTPRINTS = [
+      {
+        adcode: '610000',
+        province: '陕西省',
+        city: '陕西 · 汉中',
+        pinName: '陕西',
+        ptKey: 'hanzhong',
+        labelOffset: [-26, -12],
+        tag: '故乡与起点',
+        note: '秦巴山水间出发，在电子信息与机器人工程的世界里扎根生长。'
+      },
+      {
+        adcode: '330000',
+        province: '浙江省',
+        city: '浙江 · 杭州',
+        pinName: '杭州',
+        ptKey: 'hangzhou',
+        labelOffset: [14, 4],
+        tag: '江南行迹',
+        note: '漫步西湖烟雨与数字科技之城，感受温润气韵与创新脉动的交汇。'
+      },
+      {
+        adcode: '440000',
+        province: '广东省',
+        city: '广东 · 深圳',
+        pinName: '深圳',
+        ptKey: 'shenzhen',
+        labelOffset: [14, 5],
+        tag: '乐聚实习',
+        note: '南下鹏城，在乐聚机器人软件部参与「夸父 KUAVO」人形机器人研发，把算法写入真实世界。'
+      }
+    ];
+
+    const visitedMap = new Map(FOOTPRINTS.map(f => [f.adcode, f]));
+    const total = data.provinces.length;
+    const litCount = FOOTPRINTS.length;
+    const pct = ((litCount / total) * 100).toFixed(1);
+
+    countEl.innerHTML = `${litCount < 10 ? '0' + litCount : litCount}<span>/ ${total}</span>`;
+    pctEl.textContent = pct + '%';
+    fillEl.style.width = pct + '%';
+
+    const NS = 'http://www.w3.org/2000/svg';
+    function el(tag, attrs = {}) {
+      const node = document.createElementNS(NS, tag);
+      for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+      return node;
+    }
+
+    // 渐变与暖光滤镜
+    const defs = el('defs');
+    defs.innerHTML = `
+      <linearGradient id="litGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#DF9468"/>
+        <stop offset="100%" stop-color="#C16F44"/>
+      </linearGradient>
+      <linearGradient id="litGradActive" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#C97344"/>
+        <stop offset="100%" stop-color="#335C86"/>
+      </linearGradient>
+      <filter id="litGlow" x="-12%" y="-12%" width="124%" height="124%">
+        <feDropShadow dx="0" dy="2" stdDeviation="3.2" flood-color="#C4754B" flood-opacity="0.32"/>
+      </filter>
+      <clipPath id="scsClip">
+        <rect x="${data.inset.box[0]}" y="${data.inset.box[1]}" width="${data.inset.box[2]}" height="${data.inset.box[3]}" rx="8"/>
+      </clipPath>
+    `;
+    svg.appendChild(defs);
+
+    // 渲染 34 个省级行政区
+    const provLayer = el('g', { id: 'provLayer' });
+    const pathByCode = new Map();
+    for (const p of data.provinces) {
+      const isLit = visitedMap.has(p.id);
+      const path = el('path', {
+        d: p.d,
+        class: isLit ? 'prov-path visited' : 'prov-path',
+        'data-id': p.id,
+        'data-name': p.name
+      });
+      provLayer.appendChild(path);
+      pathByCode.set(p.id, { path, prov: p });
+    }
+    svg.appendChild(provLayer);
+
+    // 航迹弧线（从起点陕西连向杭州与深圳）
+    const arcLayer = el('g', { id: 'arcLayer' });
+    function getPinPt(fp) {
+      if (fp.ptKey && data.cities && data.cities[fp.ptKey]) return data.cities[fp.ptKey].pt;
+      const found = pathByCode.get(fp.adcode);
+      return found ? found.prov.center : [520, 400];
+    }
+    if (FOOTPRINTS.length > 1) {
+      const origin = getPinPt(FOOTPRINTS[0]);
+      for (let i = 1; i < FOOTPRINTS.length; i++) {
+        const dest = getPinPt(FOOTPRINTS[i]);
+        const mx = (origin[0] + dest[0]) / 2;
+        const my = (origin[1] + dest[1]) / 2;
+        const dx = dest[0] - origin[0], dy = dest[1] - origin[1];
+        const cx = mx - dy * 0.16;
+        const cy = my + dx * 0.12 - 22;
+        arcLayer.appendChild(el('path', {
+          class: 'route-arc',
+          d: `M${origin[0]},${origin[1]} Q${cx.toFixed(1)},${cy.toFixed(1)} ${dest[0]},${dest[1]}`
+        }));
+      }
+    }
+    svg.appendChild(arcLayer);
+
+    // 城市光点与标签
+    const pinLayer = el('g', { id: 'pinLayer' });
+    FOOTPRINTS.forEach((fp, i) => {
+      const [x, y] = getPinPt(fp);
+      const g = el('g', { 'data-id': fp.adcode });
+      const pulse = el('circle', { cx: x, cy: y, r: 4.5, class: 'pin-pulse' });
+      pulse.style.animationDelay = (i * 0.7) + 's';
+      const core = el('circle', { cx: x, cy: y, r: 4.2, class: 'pin-core' });
+      const [ox, oy] = fp.labelOffset || [12, 4];
+      const lbl = el('text', { x: x + ox, y: y + oy, class: 'pin-label' });
+      lbl.textContent = fp.pinName;
+      g.append(pulse, core, lbl);
+      pinLayer.appendChild(g);
+    });
+    svg.appendChild(pinLayer);
+
+    // 南海诸岛插图（含完整十段线）
+    const [ix, iy, iw, ih] = data.inset.box;
+    const insetGroup = el('g');
+    insetGroup.appendChild(el('rect', { x: ix, y: iy, width: iw, height: ih, rx: 8, class: 'inset-frame' }));
+    const clipped = el('g', { 'clip-path': 'url(#scsClip)' });
+    for (const land of data.inset.land) {
+      clipped.appendChild(el('path', {
+        d: land.d,
+        class: visitedMap.has(land.id) ? 'inset-land visited' : 'inset-land'
+      }));
+    }
+    for (const dash of data.inset.tenDash) {
+      clipped.appendChild(el('path', { d: dash, class: 'inset-dash' }));
+    }
+    insetGroup.appendChild(clipped);
+    const title = el('text', { x: ix + iw - 10, y: iy + ih - 10, 'text-anchor': 'end', class: 'inset-title' });
+    title.textContent = '南海诸岛';
+    insetGroup.appendChild(title);
+    svg.appendChild(insetGroup);
+
+    // 右侧已点亮足迹卡片
+    cardsBox.innerHTML = FOOTPRINTS.map(fp => `
+      <div class="fp-card" data-code="${fp.adcode}">
+        <div class="fp-card-head">
+          <span class="fp-card-title"><span class="fp-dot"></span>${fp.city}</span>
+          <span class="fp-tag">${fp.tag}</span>
+        </div>
+        <p>${fp.note}</p>
+      </div>
+    `).join('');
+
+    let selectedCode = null;
+    function focusProvince(code) {
+      selectedCode = selectedCode === code ? null : code;
+      pathByCode.forEach(({ path }, id) => {
+        path.classList.toggle('selected', id === selectedCode);
+        path.classList.toggle('dimmed', Boolean(selectedCode) && id !== selectedCode && !visitedMap.has(id));
+      });
+      cardsBox.querySelectorAll('.fp-card').forEach(c => {
+        c.classList.toggle('active', c.dataset.code === selectedCode);
+      });
+
+      if (!selectedCode) {
+        inspectBox.innerHTML = '悬停或点击地图任意省份查看详情；点击右侧卡片可聚焦对应省份。';
+        return;
+      }
+      const fp = visitedMap.get(selectedCode);
+      if (fp) {
+        inspectBox.innerHTML = `<strong>${fp.province} · ${fp.city}</strong>（已点亮）— ${fp.note}`;
+      } else {
+        const pName = pathByCode.get(selectedCode)?.prov.name || '';
+        inspectBox.innerHTML = `<strong>${pName}</strong> 暂未点亮 · 未来计划：去更多的地方，看更大的世界。`;
+      }
+    }
+
+    cardsBox.addEventListener('click', e => {
+      const card = e.target.closest('.fp-card');
+      if (card) focusProvince(card.dataset.code);
+    });
+
+    svg.addEventListener('pointermove', e => {
+      const target = e.target.closest('[data-id]');
+      if (!target) {
+        tooltip.classList.remove('show');
+        return;
+      }
+      const id = target.getAttribute('data-id');
+      const info = pathByCode.get(id);
+      if (!info) return;
+      const fp = visitedMap.get(id);
+      tooltip.innerHTML = fp
+        ? `<span class="tt-name">${info.prov.short}</span><span class="tt-sub">已点亮 · ${fp.city}</span>`
+        : `<span class="tt-name">${info.prov.name}</span><span class="tt-sub dim">待启程</span>`;
+      const rect = wrap.getBoundingClientRect();
+      tooltip.style.left = (e.clientX - rect.left) + 'px';
+      tooltip.style.top = (e.clientY - rect.top) + 'px';
+      tooltip.classList.add('show');
+    });
+
+    svg.addEventListener('pointerleave', () => tooltip.classList.remove('show'));
+    svg.addEventListener('click', e => {
+      const target = e.target.closest('[data-id]');
+      if (target) focusProvince(target.getAttribute('data-id'));
+    });
+  })();
 </script>
 </body>
 </html>
